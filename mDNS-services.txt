@@ -72,7 +72,28 @@ _coremediamgr._tcp.local    # Air Video HD
 _nvstream_dbd._tcp.local    # NVidia Gamestream server
 _teamviewer._tcp.local      # Team Viewer
 _bp2p._tcp.local            # BlackBerry (?)
+_mamp._tcp.local            # MAMP Development Server
+_1password4._tcp.local      # 1Password Wi-Fi Sync
+_plasma._tcp.local          # KDE Plasma (?)
+_sane-port._tcp.local       # SANE (Scanner Access Now Easy) Network Daemon
+_nmea-0183._tcp.local       # Navico Multifunctional Displays
+_riousbprint._tcp.local     # Remote USB port emulation, Printing
+_ndi._tcp.local             # Siena TV 
+_wirecastgodirect._tcp.local    # Wirecast Go Streaming by TeleStream
+_scan-target._tcp.local     # Scanner, Printing
+_udisks-ssh._tcp.local      # A remote disk management tool Ubuntu/Linux
+_tivo-videos._tcp.local     # Tivo Service Advertising
+_readynas._tcp.local        # Netgear Ready NAS  
+_csco-sb._tcp.local         # Cisco SB (small business), router/switches
+_pulse-server._tcp.local    # Pulse Audio Server
+_pulse-sink._tcp.local      # Pulse Audio
+_pulse-source._tcp.local    # Pulse Audio
+_duet_air._tcp.local        # Duet Screen Sharing
+_samsungmsf._tcp.local      # Samsung
+_odisk._tcp.local           # Apple Optical Disk Sharing
+_psia._tcp.local            # Stretch PSIA IP Camera
 
+_pgpkey-hkp._tcp.local
 _rdlink._tcp.local
 _fb._tcp.local
 _apple-pairable._tcp.local
@@ -84,5 +105,15 @@ wpad.local
 _coupon_printer._tcp.local
 _dltouch._tcp.local
 _hearing._tcp.local
-_mamp._tcp.local
 _parentcontrol._tcp.local
+_kmclipboards._tcp.local
+_kmclipboardss._tcp.local
+_nslogger-ssl._tcp.local
+_canon-chmp._tcp.local
+_canon-bjnp1._tcp.local
+_polar-ftp._tcp.local
+_vara-presenter._tcp.local
+_dlagent._tcp.local
+_dvl-deviceapi._tcp.local
+_dvl-plcnetapi._tcp.local
+_appletv-v2._tcp.local
