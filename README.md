@@ -40,8 +40,10 @@ Sapito is a mDNS (multicast DNS) sniffer and interpreter
 The Answer Section of Multicast DNS queries is not authoritative.
 
 - A SRV record gives the target host and port where the service instance can be reached.
+- The DNS TXT record of the same name gives additional information about this instance, in a structured form using key/value pairs
 
 # Why some packets have a question and answers in the same packet?
+
 Because of Known-Answer suppression (https://tools.ietf.org/html/rfc6762#section-7.1)
 
     Known-Answer Suppression
