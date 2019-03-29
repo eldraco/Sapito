@@ -1,9 +1,9 @@
 _afpovertcp._tcp.local		# Apple File Sharing
-_ftp._tcp.local			    # FTP Servers
-_http._tcp.local			# Web Servers
-_https._tcp.local			# HTTPS servers
-_smb._tcp.local		    	# Windows Sharing
-_rfb._tcp.local		    	# Remote Frame Buffer, Screen Sharing
+_ftp._tcp.local           # FTP Servers
+_http._tcp.local          # Web Servers
+_https._tcp.local         # HTTPS servers
+_smb._tcp.local           # Windows Sharing
+_rfb._tcp.local           # Remote Frame Buffer, Screen Sharing
 _ssh._tcp.local		    	# Secure Shell
 _telnet._tcp.local          # Telnet
 _printer._tcp.local	    	# LPR Printers
