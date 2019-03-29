@@ -21,7 +21,7 @@ _acp-sync._tcp.local		# Airport Base Station Sync
 _eppc._tcp.local			# Remote Apple Events
 _home-sharing._tcp.local    # Home Sharing
 _homekit._tcp.local	    	# HomeKit
-_ldap				    	# LDAP
+_ldap				    # LDAP
 _mediaremotetv._tcp         # Media Remote
 _net-assistant._tcp         # Apple Remote Desktop
 _od-master._tcp             # OpenDirectory Master
