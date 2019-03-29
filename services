@@ -1,0 +1,88 @@
+_afpovertcp._tcp.local		# Apple File Sharing
+_ftp._tcp.local			    # FTP Servers
+_http._tcp.local			# Web Servers
+_https._tcp.local			# HTTPS servers
+_smb._tcp.local		    	# Windows Sharing
+_rfb._tcp.local		    	# Remote Frame Buffer, Screen Sharing
+_ssh._tcp.local		    	# Secure Shell
+_telnet._tcp.local          # Telnet
+_printer._tcp.local	    	# LPR Printers
+_ipp._tcp.local 			# IPP Printers
+_ippusb._tcp.local          # Printing
+_ipps._tcp.local            # Printing
+_presence._tcp.local		# iChat Buddies
+_daap._tcp.local			# Digital Audio Access Protocol, iTunes Libraries
+_dpap._tcp.local			# iPhoto Libraries
+_adisk._tcp.local			# Automatic Disk Discovery
+_airdrop._tcp.local	    	# AirDrop
+_airplay._tcp.local 		# AirPlay
+_airport._tcp.local	    	# Airport Base Stations
+_acp-sync._tcp.local		# Airport Base Station Sync
+_eppc._tcp.local			# Remote Apple Events
+_home-sharing._tcp.local    # Home Sharing
+_homekit._tcp.local	    	# HomeKit
+_ldap				    	# LDAP
+_mediaremotetv._tcp         # Media Remote
+_net-assistant._tcp         # Apple Remote Desktop
+_od-master._tcp             # OpenDirectory Master
+_nfs._tcp                   # Network File System
+_pdl-datastream._tcp        # Printer Page Description Language Data Stream
+_raop._tcp                  # Remote Audio Output Protocol
+_scanner._tcp               # Bonjour Scanning
+_sftp-ssh._tcp              # Secure File Transfer Protocol over SSH
+_sleep-proxy._udp           # Sleep Proxy Server
+_teleport._tcp              # teleport
+_tftp._tcp                  # Trivial File Transfer Protocol
+_workstation._tcp           # Workgroup Manager
+_webdav._tcp                # World Wide Web Distributed Authoring and Versioning (WebDAV)
+_webdavs._tcp               # WebDAV over SSL/TLS
+_apple-mobdev._tcp.local    # iTunes-WiFiSync, OSX Wi-Fi Sync
+_apple-mobdev2._tcp.local   # iTunes-WiFiSync, OSX Wi-Fi Sync
+_companion-link._tcp.local  # AirPlay2
+_googlecast._tcp.local      # Google Chrome Cast services
+_googlezone._tcp.local      # Google Zone Cast services
+_device-info._tcp.local     # OSX Device Info
+_dns-sd._udp.local          # DNS Service Discovery
+_services._dns-sd._udp.local  # Services
+_keepalive._dns-sd._udp.local # Sleep Proxy
+b._dns-sd._udp              # Browse
+db._dns-sd._udp             # Default Browse
+lb._dns-sd._udp             # Automatic Browse
+r._dns-sd._udp              # Registration
+dr._dns-sd._udp             # Default Registration
+_hap._tcp.local             # Apple HomeKit – HomeKit Accessory Protocol
+_atc._tcp.local             # Apple Shared iTunes Library
+_touch-remote._tcp.local    # 
+_touch-able._tcp.local      # Apple TV Remote App (iOS devices)
+_spotify-connect._tcp.local # Spotify Connect
+_hudson._tcp.local          # Jenkins App
+_jenkins._tcp.local         # Jenkins App
+_KeynoteControl._tcp.local  # OSX Keynote
+_keynotepair._tcp.local     # OSX Keynote
+_androidtvremote._tcp.local # Nvidia Shield / Android TV
+_udisks-ssh._tcp.local      # Ubuntu / Raspberry Pi Advertisement
+_privet._tcp.local          # Privet is a Cloud Device Local Discovery API used by cloud services
+_uscan._tcp.local           # HP Printers?
+_uscans._tcp.local          # HP Printers?
+_ptp._tcp.local             # Picture Transfer Protocol
+_withings-aura-bridge._tcp.local    # Sleep tracker Aura Withings
+_amzn-wplay._tcp.local      # Amazon Devices, Amazon Fire TV (?)
+_bttouch._tcp.local         # Bowtie Remote
+_coremediamgr._tcp.local    # Air Video HD
+_nvstream_dbd._tcp.local    # NVidia Gamestream server
+_teamviewer._tcp.local      # Team Viewer
+_bp2p._tcp.local            # BlackBerry (?)
+
+_rdlink._tcp.local
+_fb._tcp.local
+_apple-pairable._tcp.local
+_gamecontrollerd._tcp.local
+_itsdlgt._tcp.local
+_sleepcycle_ald._tcp.local
+_tw-multipeer._tcp.local
+wpad.local
+_coupon_printer._tcp.local
+_dltouch._tcp.local
+_hearing._tcp.local
+_mamp._tcp.local
+_parentcontrol._tcp.local
