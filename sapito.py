@@ -10,6 +10,7 @@ import sys
 from datetime import datetime
 from scapy.all import *
 import re
+import macvendor
 
 class bcolors:
     HEADER = '\033[95m'
@@ -27,7 +28,8 @@ def do(pkt):
     """
     if IP in pkt and UDP in pkt:
         if pkt[UDP].dport == 5353:
-            shw = pkt[Ether].src
+            shw = pkt[Ether].src.upper()
+            mac_vendor = macvendor.get_all(shw).manuf_long
             srcip = pkt[IP].src
             UDPlayer = pkt[UDP]
             #len = UDPlayer.len
@@ -40,7 +42,7 @@ def do(pkt):
                 amount_of_answers = DNSlayer.ancount
                 # TODO: Find the Authoritative Nameservers
 
-                print('SrcMAC: {}, SrcIP: {}. #Questions: {}. #Additional Records {}. #Answers: {}'.format(shw, srcip, amount_of_questions, amount_of_additional_records, amount_of_answers))
+                print('SrcMAC: {} ({}), SrcIP: {}. #Questions: {}. #Additional Records {}. #Answers: {}'.format(shw, mac_vendor, srcip, amount_of_questions, amount_of_additional_records, amount_of_answers))
                 question_name = DNSlayer.fields['qd']
 
                 # Process the questions
@@ -81,6 +83,10 @@ def do(pkt):
                                         print(bcolors.IMPORTANT + '\t\tThis is the iPad Air 2 (iPad5,4). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
                                     elif 'J318AP' in tuple[1]:
                                         print(bcolors.IMPORTANT + '\t\tThis is the iPad Pro (11-inch) Wi-Fi + Cellular model. It has 4 GB RAM and is available with 64, 256 and 512 GB of storage. Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                    elif 'J96AP' in tuple[1]:
+                                        print(bcolors.IMPORTANT + '\t\tThis is the iPad mini 4 (iPad5,1). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                    elif 'J207AP' in tuple[1]:
+                                        print(bcolors.IMPORTANT + '\t\tThis is the iPad Pro (10.5-inch) (iPad7,3). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
                                     elif 'J' in tuple[1] and 'AP' in tuple[1]:
                                         print(bcolors.IMPORTANT + '\t\tAn Apple device that we don\'t know!!. Search it manually in https://www.theiphonewiki.com. Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
                                     else:
@@ -119,10 +125,24 @@ def do(pkt):
                         print('\tAdditional Type: {}. RRName: {}'.format(additional_name.name, additional_name.rrname.decode('utf-8')))
                         # This may be a DNS PTR style ipv6
                     elif type(additional_name) == DNSRR:
-                        if type(additional_name.rdata) == bytes:
+                        # If its a Bytes structure and is not empty
+                        if type(additional_name.rdata) == bytes and additional_name.rdata:
                             print('\tAdditional Type: {}. Rdata Bytes: {}'.format(additional_name.name, additional_name.rdata))
-                            # Additional record Name: DNS Resource Record. Rdata Bytes: b'rpBA=2D:F6:28:9B:87:99rpAD=82ae95302041rpHI=85e0df6055a0rpHN=2d48a2585755rpVr=164.16rpHA=0736452b945f'
-                            rdata = additional_name.rdata.decode('utf-8')
+                            # Lets parts this shit of string b'rpBA=2D:F6:28:9B:87:99rpAD=82ae95302041rpHI=85e0df6055a0rpHN=2d48a2585755rpVr=164.16rpHA=0736452b945f'
+                            rdata = additional_name.rdata.decode('utf-8').split('=')
+                            values = {}
+                            temp_name = rdata[0]
+                            for data in rdata[1:]:
+                                values[temp_name] =  data[:-4]
+                                temp_name = data[-4:]
+                            # To the last, add the last 4 bytes
+                            values[list(values.keys())[-1]] += temp_name
+                            # Print now
+                            for key in values:
+                                print('\t\tName: {}. Value: {}'.format(key, values[key]))
+
+
+
                         elif type(additional_name.rdata) == dict:
                             print('\tAdditional Type: {}. Rdata Name: {}'.format(additional_name.name, additional_name.rdata[0].name))
                     elif type(additional_name) == DNSRRSRV:
@@ -147,6 +167,9 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--interface', help='Name of the interface to use.', action='store', required=False, type=str)
 
     args = parser.parse_args()
+
+    # Reload the file of Mac vendors
+    macvendor.refresh()
 
     if args.interface:
         sniff(iface=args.interface,prn=do,store=0)
