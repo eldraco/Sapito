@@ -39,12 +39,48 @@ def do(pkt):
                 # Process the Answers
                 answers_name = DNSlayer.fields['an']
                 for pos in range(0,amount_of_answers):
-                    #print('\tAnswer record Type: {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata.decode('utf-8')))
-                    if type(answers_name.rdata) == bytes:
-                        print('\tAnswer record Type: {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata.decode('utf-8')))
-                    else:
-                        print('\tAnswer record Type: {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata))
-                    answers_name = answers_name.payload
+                    # Do we have rdata?
+                    try:
+                        if type(answers_name.rdata) == bytes:
+                            print('\tAnswer record Type: {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata.decode('utf-8')))
+                            try:
+                                details = answers_name.rdata.decode('utf-8').split(',')
+                                for data1 in details:
+                                    try:
+                                        tuple = data1.split('=')
+                                        if 'model' in tuple[0].lower():
+                                            if 'macbook' in tuple[1].lower():
+                                                print('\t\tThe model of the MacBook {}'.format(tuple[1]))
+                                            else:
+                                                print('\t\tThe model of the device is {}'.format(tuple[1]))
+
+                                        elif 'osxvers' in tuple[0].lower():
+                                            # Sometimes the str is broken wit 'ecolor' at the end and some 3 numbers
+                                            try:
+                                                temp = tuple[1].split('ecolor')[0]
+                                            except TypeError:
+                                                temp = tuple[1]
+                                            print('\t\tThe osx version is {}'.format(temp))
+                                        elif 'Elmedia Video Player' in tuple[0] and 'airplay' in tuple[0]:
+                                            print('\t\tAirplay Enabled in this host.')
+
+                                        elif len(tuple) == 1:
+                                            # Its a text, but not formated with , or =. so just interpret it.
+                                            print('\t\tData to process: {}'.format(tuple))
+                                        else:
+                                            print('\t\tother data here?: {}'.format(tuple))
+                                    except TypeError:
+                                        print('\tother error')
+                            except TypeError:
+                                print('\terror')
+                        else:
+                            print('\tAnswer record Type: {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata))
+                        answers_name = answers_name.payload
+                    except AttributeError:
+                        print('Error with an Answer. Doesn\'t have an rdata: {}'.format(answers_name))
+                        sys.exit(0)
+
+
                 # Find if the Apple is using the airdrop
                 # 	Answer record Type: DNS Resource Record. Rdata name: model=MacBookAir7,2osxvers=18
                 # 	Answer record Type: DNS Resource Record. Rdata name: 2deae6e5bd95._airdrop._tcp.local.
