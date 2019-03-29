@@ -1,4 +1,4 @@
-_afpovertcp._tcp.local		# Apple File Sharing
+_afpovertcp._tcp.local    # Apple File Sharing
 _ftp._tcp.local           # FTP Servers
 _http._tcp.local          # Web Servers
 _https._tcp.local         # HTTPS servers
@@ -92,28 +92,34 @@ _duet_air._tcp.local        # Duet Screen Sharing
 _samsungmsf._tcp.local      # Samsung
 _odisk._tcp.local           # Apple Optical Disk Sharing
 _psia._tcp.local            # Stretch PSIA IP Camera
-
-_pgpkey-hkp._tcp.local
-_rdlink._tcp.local
-_fb._tcp.local
-_apple-pairable._tcp.local
-_gamecontrollerd._tcp.local
-_itsdlgt._tcp.local
-_sleepcycle_ald._tcp.local
-_tw-multipeer._tcp.local
-wpad.local
-_coupon_printer._tcp.local
-_dltouch._tcp.local
-_hearing._tcp.local
-_parentcontrol._tcp.local
-_kmclipboards._tcp.local
-_kmclipboardss._tcp.local
-_nslogger-ssl._tcp.local
-_canon-chmp._tcp.local
-_canon-bjnp1._tcp.local
-_polar-ftp._tcp.local
-_vara-presenter._tcp.local
-_dlagent._tcp.local
-_dvl-deviceapi._tcp.local
-_dvl-plcnetapi._tcp.local
-_appletv-v2._tcp.local
+_appletv-v2._tcp.local      # Apple TV
+_arduino._tcp.local         # Arduino
+_gamecenter._tcp.local      # Apple Game Center
+_rc._tcp.local              #
+_pgpkey-hkp._tcp.local      #
+_rdlink._tcp.local          #
+_fb._tcp.local              #
+_apple-pairable._tcp.local  #
+_gamecontrollerd._tcp.local #
+_itsdlgt._tcp.local         #
+_sleepcycle_ald._tcp.local  #
+_tw-multipeer._tcp.local    #
+_coupon_printer._tcp.local  #
+_dltouch._tcp.local         #
+_hearing._tcp.local         #
+_parentcontrol._tcp.local   #
+_kmclipboards._tcp.local    #
+_kmclipboardss._tcp.local   #
+_nslogger-ssl._tcp.local    #
+_canon-chmp._tcp.local      #
+_canon-bjnp1._tcp.local     #
+_polar-ftp._tcp.local       #
+_vara-presenter._tcp.local  #
+_dlagent._tcp.local         #
+_dvl-deviceapi._tcp.local   #
+_dvl-plcnetapi._tcp.local   #
+_apple-midi._udp.local      #
+_miio._udp.local            #
+_pdf-datastream._tcp.local  #
+_leboremote._tcp.local      #
+_esfileshare._tcp.local     #
