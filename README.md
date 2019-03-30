@@ -14,7 +14,7 @@ offending packets, better.
 
 ![Default Options](https://github.com/eldraco/Sapito/blob/master/sapito-gif.gif?raw=true)
 
-Sapito was made by Sebastian Garcia (eldraco@gmail.com) and Veronica Valeros (vero.valeros@gmail.com)
+Sapito was made by Sebastian Garcia (eldraco@gmail.com, and @eldracote) and Veronica Valeros (vero.valeros@gmail.com, @verovaleros)
 
 
 # Background about some services
