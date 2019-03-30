@@ -1,10 +1,21 @@
 # Sapito 
 Sapito is a mDNS (multicast DNS) sniffer and interpreter
 
+The idea is to sniff packets from a pcap or interface and be able to interpret the findings, not only print them.
+
+Sapito is able to understand the questions and answers to make sense to the messages. 
+It can also understand some devices, like finding macos computers and several type of iPads.
+
+Sapito uses colors to show important information.
+
+
+If you find a bug, please report it together with the output of the tool to eldraco@gmail.com. If you send a pcap with the 
+offending packets, better.
 
 
 
-# About Bonjour Services
+# Background about some services
+## About Bonjour Services
 
     ._airplay._tcp.local
 
@@ -35,14 +46,7 @@ Sapito is a mDNS (multicast DNS) sniffer and interpreter
     This is another of the network services that makes the Apple TV Remote work. This service concerns device authentication. I.e. if you want to for example play a Youtube video on the Apple TV, the Apple TV can require that the device is authenticated before being allowed to do so. In practice authentications work by the Apple TV displaying a PIN-code on the TV that the user enters on the iOS device. This PIN-code is transferred using the service advertised as "touch-able" to authenticate the device.
 
 
-# To take into account
-
-The Answer Section of Multicast DNS queries is not authoritative.
-
-- A SRV record gives the target host and port where the service instance can be reached.
-- The DNS TXT record of the same name gives additional information about this instance, in a structured form using key/value pairs
-
-# Why some packets have a question and answers in the same packet?
+## Why some packets have a question and answers in the same packet?
 
 Because of Known-Answer suppression (https://tools.ietf.org/html/rfc6762#section-7.1)
 
