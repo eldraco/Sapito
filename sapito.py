@@ -158,14 +158,29 @@ def do(pkt):
                                                 protocol = rdata.split('.')[-3].split('_')[1]
                                                 name_data = answers_name.rrname.decode('utf-8').split('.')
                                                 location = rdata.split('.')[-5]
-                                                macaddr = location.split('@')[0]
-                                                ipaddr = location.split('@')[1]
-                                                if len(name_data) > 4:
-                                                    name = answers_name.rrname.decode('utf-8').split('.')[-6]
-                                                    sub_name = answers_name.rrname.decode('utf-8').split('.')[-5]
-                                                    print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, on MAC {}, and IP {} using protocol {}'.format(name, macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                                # Check if the location really has the mac and IP addr
+                                                if len(location.split('@')) > 1:
+                                                    # It does
+                                                    macaddr = location.split('@')[0]
+                                                    ipaddr = location.split('@')[1]
+                                                    if len(name_data) > 5:
+                                                        # We have a name for the service
+                                                        name = answers_name.rrname.decode('utf-8').split('.')[-6]
+                                                        sub_name = answers_name.rrname.decode('utf-8').split('.')[-5]
+                                                        print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, on MAC {}, and IP {} using protocol {}'.format(name, macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                                    else:
+                                                        # We don't have a name for the service
+                                                        print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, on MAC {}, and IP {} using protocol {}'.format(macaddr, ipaddr, protocol) + bcolors.ENDC)
                                                 else:
-                                                    print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, on MAC {}, and IP {} using protocol {}'.format(macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                                    # We don't have the mac and ip addreess
+                                                    if len(name_data) > 5:
+                                                        # We have a name for the service
+                                                        name = answers_name.rrname.decode('utf-8').split('.')[-6]
+                                                        sub_name = answers_name.rrname.decode('utf-8').split('.')[-5]
+                                                        print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {} using protocol {}'.format(name, protocol) + bcolors.ENDC)
+                                                    else:
+                                                        # We don't have a name for the service
+                                                        print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, using protocol {}'.format(protocol) + bcolors.ENDC)
                                             else:
                                                 # Sometimes this record comes only with the name!
                                                 name = answers_name.rrname.decode('utf-8').split('.')[-5]
@@ -304,13 +319,12 @@ def do(pkt):
                                     else:
                                         # Values like an AAAA address
                                         rdata = answers_name.rdata
-                                        other_data = rdata
                                 else:
                                     # We don't have the rdata. Some devices do not send it
                                     name = answers_name.target.decode('utf-8').split('.')[-3]
 
                                 if '_apple' in service:
-                                    if not other_data:
+                                    if type(answers_name.rdata) == bytes:
                                         # Values like a name b'pepe'. There is no extra data
                                         if 'mobdev2' in service:
                                             print(bcolors.WARNING + '\t\t\tThis host named {} offers the service iTunes WiFi Sync in the MAC {}, IP {}, protocol {}'.format(name, macaddr, ipaddr, protocol ) + bcolors.ENDC)
@@ -318,11 +332,11 @@ def do(pkt):
                                             print(bcolors.WARNING + '\t\t\tThis host named {} offers the service {} in the MAC {}, IP {}, protocol {}'.format(name, service, macaddr, ipaddr, protocol ) + bcolors.ENDC)
                                     else:
                                         # Values like an AAAA address
-                                        # Here the other_data has an IP address
+                                        # Here the rdata has an IP address
                                         if 'mobdev2' in service:
-                                            print(bcolors.WARNING + '\t\t\tThis host offers the service iTunes WiFi Sync in the MAC {}, IP {}, protocol {}. As name was offered the IP {}'.format(macaddr, ipaddr, protocol, other_data ) + bcolors.ENDC)
+                                            print(bcolors.WARNING + '\t\t\tThis host offers the service iTunes WiFi Sync in the MAC {}, IP {}, protocol {}. As name was offered the IP {}'.format(macaddr, ipaddr, protocol, rdata ) + bcolors.ENDC)
                                         else:
-                                            print(bcolors.WARNING + '\t\t\tThis host offers some service ??? in the MAC {}, IP {}, protocol {}. As name was offered the IP {}'.format(macaddr, ipaddr, protocol, other_data ) + bcolors.ENDC)
+                                            print(bcolors.WARNING + '\t\t\tThis host offers some service ??? in the MAC {}, IP {}, protocol {}. As name was offered the IP {}'.format(macaddr, ipaddr, protocol, rdata ) + bcolors.ENDC)
                                 elif '_amzn' in service:
                                     # Example: amzn.dmgr:806A9BE922A574669B9299828FD6B3D3:U/5Z9LxhBX:79035._amzn-wplay._tcp.local.
                                     name = answers_name.target.decode('utf-8').split('.')[:-2][0]
