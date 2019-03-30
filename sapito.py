@@ -324,13 +324,13 @@ def do(pkt):
                                     name = answers_name.target.decode('utf-8').split('.')[-3]
 
                                 if '_apple' in service:
-                                    if type(answers_name.rdata) == bytes:
+                                    if hasattr(answers_name, 'rdata') and type(answers_name.rdata) == bytes:
                                         # Values like a name b'pepe'. There is no extra data
                                         if 'mobdev2' in service:
                                             print(bcolors.WARNING + '\t\t\tThis host named {} offers the service iTunes WiFi Sync in the MAC {}, IP {}, protocol {}'.format(name, macaddr, ipaddr, protocol ) + bcolors.ENDC)
                                         else:
                                             print(bcolors.WARNING + '\t\t\tThis host named {} offers the service {} in the MAC {}, IP {}, protocol {}'.format(name, service, macaddr, ipaddr, protocol ) + bcolors.ENDC)
-                                    else:
+                                    elif not hasattr(answers_name, 'rdata'):
                                         # Values like an AAAA address
                                         # Here the rdata has an IP address
                                         if 'mobdev2' in service:
