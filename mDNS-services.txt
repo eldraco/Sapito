@@ -10,7 +10,8 @@ _printer._tcp.local	    	# LPR Printers
 _ipp._tcp.local 			# IPP Printers
 _ippusb._tcp.local          # Printing
 _ipps._tcp.local            # Printing
-_presence._tcp.local		# iChat Buddies
+_presence._tcp.local		# iChat Buddies, Apple
+_ichat._tcp.local           # iChat Instant Messaging Protocol, Apple
 _daap._tcp.local			# Digital Audio Access Protocol, iTunes Libraries
 _dpap._tcp.local			# iPhoto Libraries
 _adisk._tcp.local			# Automatic Disk Discovery
@@ -22,18 +23,18 @@ _eppc._tcp.local			# Remote Apple Events
 _home-sharing._tcp.local    # Home Sharing
 _homekit._tcp.local	    	# HomeKit
 _ldap				    # LDAP
-_mediaremotetv._tcp         # Media Remote
+_mediaremotetv._tcp         # Apple TV Media Remote, Apple
 _net-assistant._tcp         # Apple Remote Desktop
 _od-master._tcp             # OpenDirectory Master
 _nfs._tcp                   # Network File System
-_pdl-datastream._tcp        # Printer Page Description Language Data Stream
-_raop._tcp                  # Remote Audio Output Protocol
+_pdl-datastream._tcp        # Printer Page Description Language Data Stream, Apple (http://www.cisco.com/c/en/us/td/docs/solutions/Enterprise/Borderless_Networks/Unified_Access/BYOD_Bonjour_EntMob.html)
+_raop._tcp                  # Remote Audio Output Protocol, Apple
 _scanner._tcp               # Bonjour Scanning
 _sftp-ssh._tcp              # Secure File Transfer Protocol over SSH
-_sleep-proxy._udp           # Sleep Proxy Server
+_sleep-proxy._udp           # Sleep Proxy Server, Apple
 _teleport._tcp              # teleport
 _tftp._tcp                  # Trivial File Transfer Protocol
-_workstation._tcp           # Workgroup Manager
+_workstation._tcp           # Workgroup Manager, Apple
 _webdav._tcp                # World Wide Web Distributed Authoring and Versioning (WebDAV)
 _webdavs._tcp               # WebDAV over SSL/TLS
 _apple-mobdev._tcp.local    # iTunes-WiFiSync, OSX Wi-Fi Sync
@@ -53,12 +54,14 @@ dr._dns-sd._udp             # Default Registration
 _hap._tcp.local             # Apple HomeKit – HomeKit Accessory Protocol
 _atc._tcp.local             # Apple Shared iTunes Library
 _touch-remote._tcp.local    # 
-_touch-able._tcp.local      # Apple TV Remote App (iOS devices)
+_touch-able._tcp.local      # Apple TV Remote App (iOS devices), Apple
+_tunnel._tcp.local          # Tunnel File Protocol
+
 _spotify-connect._tcp.local # Spotify Connect
 _hudson._tcp.local          # Jenkins App
 _jenkins._tcp.local         # Jenkins App
-_KeynoteControl._tcp.local  # OSX Keynote
-_keynotepair._tcp.local     # OSX Keynote
+_KeynoteControl._tcp.local  # OSX Keynote, Apple
+_keynotepair._tcp.local     # OSX Keynote, Apple
 _androidtvremote._tcp.local # Nvidia Shield / Android TV
 _udisks-ssh._tcp.local      # Ubuntu / Raspberry Pi Advertisement
 _privet._tcp.local          # Privet is a Cloud Device Local Discovery API used by cloud services
@@ -67,7 +70,6 @@ _uscans._tcp.local          # HP Printers?
 _ptp._tcp.local             # Picture Transfer Protocol
 _withings-aura-bridge._tcp.local    # Sleep tracker Aura Withings
 _amzn-wplay._tcp.local      # Amazon Devices, Amazon Fire TV (?)
-_bttouch._tcp.local         # Bowtie Remote
 _coremediamgr._tcp.local    # Air Video HD
 _nvstream_dbd._tcp.local    # NVidia Gamestream server
 _teamviewer._tcp.local      # Team Viewer
@@ -77,7 +79,7 @@ _1password4._tcp.local      # 1Password Wi-Fi Sync
 _plasma._tcp.local          # KDE Plasma (?)
 _sane-port._tcp.local       # SANE (Scanner Access Now Easy) Network Daemon
 _nmea-0183._tcp.local       # Navico Multifunctional Displays
-_riousbprint._tcp.local     # Remote USB port emulation, Printing
+_riousbprint._tcp.local     # Remote USB port emulation, Printing, Apple
 _ndi._tcp.local             # Siena TV 
 _wirecastgodirect._tcp.local    # Wirecast Go Streaming by TeleStream
 _scan-target._tcp.local     # Scanner, Printing
@@ -105,7 +107,7 @@ _itsdlgt._tcp.local         #
 _sleepcycle_ald._tcp.local  #
 _tw-multipeer._tcp.local    #
 _coupon_printer._tcp.local  #
-_dltouch._tcp.local         #
+_dltouch._tcp.local         # Daylite (?)
 _hearing._tcp.local         #
 _parentcontrol._tcp.local   #
 _kmclipboards._tcp.local    #
@@ -122,4 +124,33 @@ _apple-midi._udp.local      #
 _miio._udp.local            #
 _pdf-datastream._tcp.local  #
 _leboremote._tcp.local      #
-_esfileshare._tcp.local     #
+_esfileshare._tcp.local     # ES File Share App
+_airdroid._tcp.local        # AirDroid App
+_apple-sasl._tcp.local      # Apple Password Server
+_sketchmirror._tcp.local    # Sketch App
+_bcbonjour._tcp.local       # Sketch App
+_cloud._tcp.local           # Cloud by Daplie (https://daplie.com/articles/mdns-scanning-your-home-network/)
+_distcc._tcp.local          # Distributed Compiler (http://www.cisco.com/c/en/us/td/docs/solutions/Enterprise/Borderless_Networks/Unified_Access/BYOD_Bonjour_EntMob.html)
+_esdevice._tcp.local        # ES File Share App
+_ica-networking._tcp.local  # Image Capture Sharing Apple
+_omnistate._tcp.local       # OmniGroup (OmniGraffle and other apps)
+_photoshopserver._tcp.local # Adobe Photoshop Nav
+_physicalweb._tcp.local     # Physical Web, Google
+_rsp._tcp.local             # Roku Server Protocol
+_servermgr._tcp.local       # Server Admin, Apple
+_xserveraid._tcp.local      # Xserve RAID, Apple
+_bowtie._tcp.local          # Bowtie Remote
+_bttremote._tcp.local       # Bowtie Remote
+_bttouch._tcp.local         # Bowtie Remote
+_cros_p2p._tcp.local        #
+_dlaccess._tcp.local        # Daylite (?)
+_dlattachmentd._tcp.local   # Daylite (?)
+_gntp._tcp.local            # Growl server (?)
+_http-alt._tcp.local        # HTTP server on alternative port
+_fax-ipp._tcp.local         # FAX Printing
+_odproxy._tcp.local         # Odproxy (?)
+_remotemouse._tcp.local     # Remote Mouse (?)
+_chat-files._tcp.local      # 
+_ptService._tcp.local       #
+_qmobile._tcp.local         #
+_qdiscover._tcp.local       #
