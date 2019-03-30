@@ -62,10 +62,9 @@ def do(pkt):
                     for pos in range(0,amount_of_answers):
                         if args.debug:
                             try:
-                               #print('\t\t[Debug] Answer Type: {}. Rdata: {}'.format(answers_name.name, answers_name.rdata))
                                print('\t\t[Debug] Answer Type: {}. Rdata: {}'.format(answers_name.name, answers_name.rdata))
                             except AttributeError:
-                                print('\t\t[Debug] Answer Type: {}.'.format(answers_name.name, answers_name.rdata))
+                                print('\t\t[Debug] Answer Type: {}.'.format(answers_name.name))
 
                         # Process Generic DNSRR (Resource Records)
                         if type(answers_name) == DNSRR:
@@ -289,9 +288,6 @@ def do(pkt):
                                     # The location really has a mac and IP
                                     macaddr = location.split('@')[0]
                                     ipaddr = location.split('@')[1]
-                                else:
-                                    # Sometimes they only send a name
-                                    location_name = location
 
                                 # Do we have an rdata?
                                 if hasattr(answers_name, 'rdata'):
@@ -300,7 +296,11 @@ def do(pkt):
                                     if type(answers_name.rdata) == bytes:
                                         # Values like a name
                                         rdata = answers_name.rdata.decode('utf-8')
-                                        name = rdata.split('.')[-3]
+                                        try:
+                                            name = rdata.split('.')[-3]
+                                        except IndexError:
+                                            # Some rdata do not have the .local, only the name.
+                                            name = rdata.split('.')[0]
                                     else:
                                         # Values like an AAAA address
                                         rdata = answers_name.rdata
@@ -331,9 +331,9 @@ def do(pkt):
                                         print(bcolors.WARNING + '\t\t\tThis host named {} (name based on its IP) offers the service Amazon FireTV with data {}'.format(name, data) + bcolors.ENDC)
                                 elif '_raop' in service:
                                     # Service for remote audio
-                                    if location_name:
+                                    if len(location.split('@')) < 2:
                                         # Some devices do not send a mac at all nor ip, only a name
-                                        print(bcolors.WARNING + '\t\t\tThis host named {} offers the service of Remote Audio Output Protocol on the device named {}'.format(name, macaddr, location_name) + bcolors.ENDC)
+                                        print(bcolors.WARNING + '\t\t\tThis host named {} offers the service of Remote Audio Output Protocol on the device named {}'.format(name, macaddr, location) + bcolors.ENDC)
 
                                     else:
                                         # Some devices do not send both mac and the IP address but a mac and a 'name'
