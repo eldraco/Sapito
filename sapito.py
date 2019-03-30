@@ -61,7 +61,11 @@ def do(pkt):
                     # Process each answer one after the other. They are nested, so we need to process them by changing the value of answers_name on each loop
                     for pos in range(0,amount_of_answers):
                         if args.debug:
-                            print('\t\t[Debug] Answer Type: {}. Rdata: {}'.format(answers_name.name, answers_name.rdata))
+                            try:
+                               #print('\t\t[Debug] Answer Type: {}. Rdata: {}'.format(answers_name.name, answers_name.rdata))
+                               print('\t\t[Debug] Answer Type: {}. Rdata: {}'.format(answers_name.name, answers_name.rdata))
+                            except AttributeError:
+                                print('\t\t[Debug] Answer Type: {}.'.format(answers_name.name, answers_name.rdata))
 
                         # Process Generic DNSRR (Resource Records)
                         if type(answers_name) == DNSRR:
@@ -121,8 +125,6 @@ def do(pkt):
                                                 print(bcolors.WARNING + '\t\tThe osx version is {}'.format(temp) + bcolors.ENDC)
                                             elif len(tuple) == 1:
                                                 # Only one position of text left. True when we receive only one piece of text that can not be spltted, or for the last part after the split
-
-                                                # Search for the name of the device
                                                 try:
                                                     # In some rdata, after splitting with , we have some numbers at the end that we don't know what they are...
                                                     int(tuple[0])
@@ -142,26 +144,41 @@ def do(pkt):
                                         if '_homekit' in rdata:
                                             print(bcolors.WARNING + '\t\tThis host knows the Apple Homekit with id: {}'.format(rdata.split('.')[0]) + bcolors.ENDC)
                                         elif '_companion-link' in rdata:
-                                            print(bcolors.WARNING + '\t\tThis host knows about the device called {} that has AirDrop active. And maybe other services from Apple.'.format(rdata.split('.')[0]) + bcolors.ENDC)
+                                            # Sometimes the companion-link DO have a name of device...
+                                            if '_companion-link' in rdata.split('.')[1]:
+                                                print(bcolors.WARNING + '\t\tThis host knows about the device called {} that has AirDrop active. And maybe other services from Apple.'.format(rdata.split('.')[0]) + bcolors.ENDC)
+                                            # Sometimes the companion-link does not have a name of device...
+                                            elif '_companion-link' in rdata.split('.')[0]:
+                                                print(bcolors.WARNING + '\t\tThis host has AirDrop activated.'.format(rdata.split('.')[0]) + bcolors.ENDC)
                                         elif 'Elmedia Video Player' in rdata and 'airplay' in rdata:
                                             print('\t\tAirplay Enabled in this host.')
                                         elif 'mobdev' in rdata:
-                                            if not data.rrname:
+                                            inner_data = rdata.split('.')
+                                            if len(inner_data) > 4:
                                                 # Sometimes this record comes only with all the data
-                                                protocol = rdata.split('.')[-3].split('_')[0]
-                                                #location = rdata.split('.')[-5]
-                                                #macaddr = location.split('@')[0]
-                                                #ipaddr = location.split('@')[1]
-                                            if not data.rrname:
+                                                protocol = rdata.split('.')[-3].split('_')[1]
+                                                name_data = answers_name.rrname.decode('utf-8').split('.')
+                                                location = rdata.split('.')[-5]
+                                                macaddr = location.split('@')[0]
+                                                ipaddr = location.split('@')[1]
+                                                if len(name_data) > 4:
+                                                    name = answers_name.rrname.decode('utf-8').split('.')[-6]
+                                                    sub_name = answers_name.rrname.decode('utf-8').split('.')[-5]
+                                                    print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, on MAC {}, and IP {} using protocol {}'.format(name, macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                                else:
+                                                    print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, on MAC {}, and IP {} using protocol {}'.format(macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                            else:
                                                 # Sometimes this record comes only with the name!
-                                                print(bcolors.WARNING + '\t\t\tThis host as a PTR to an iTunes WiFi Sync service. Data: {}'.format(data.rrname.decode('utf-8')) + bcolors.ENDC)
+                                                name = answers_name.rrname.decode('utf-8').split('.')[-5]
+                                                app_protocol = answers_name.rrname.decode('utf-8').split('.')[-4]
+                                                protocol = answers_name.rrname.decode('utf-8').split('.')[-3].split('_')[1]
+                                                print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, using the application protocol {} and transport protocol {}'.format(name, app_protocol, protocol) + bcolors.ENDC)
                                         elif len(rdata.split('.')) == 3:
                                             # This means that we only have a name and then .local.
                                             print(bcolors.IMPORTANT + '\t\tThe name of this device by PTR is {}'.format(rdata.split('.')[0]) + bcolors.ENDC)
                                         else:
                                             print('\t\tAnswer Type: {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata.decode('utf-8')))
                                             print('\t\t\tData to process: {}'.format(answers_name.rdata.decode('utf-8')))
-
                                 else:
                                     # In case we receive something not formated as a Bytes structure
                                     print('\t\tWeird situation. Check. Answer Type (str): {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata))
@@ -171,55 +188,170 @@ def do(pkt):
                                 data = answers_name.rdata.decode('utf-8')
                                 print('\t\tAnswer Type: TXT. RName: {}. Rdata: {}'.format(name, data))
                                 print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
-                                # protocol = rdata.split('.')[-3].split('_')[0]
-                                #location = rdata.split('.')[-5]
-                                #macaddr = location.split('@')[0]
-                                #ipaddr = location.split('@')[1]
+                            # Type A
                             elif type_of_record == 1: # As a RR, this is a A type
                                 name = answers_name.rrname.decode('utf-8')
                                 ip = answers_name.rdata
                                 print(bcolors.WARNING + '\t\tThe IPv4 address of this device named {} is {}'.format(name, ip) + bcolors.ENDC)
+                            # Type AAAA
                             elif type_of_record == 28: # As a RR, this is a AAAA type
                                 name = answers_name.rrname.decode('utf-8')
                                 ip = answers_name.rdata
                                 print(bcolors.WARNING + '\t\tThe IPv6 address of this device named {} is {}'.format(name, ip) + bcolors.ENDC)
+                            # Type NSEC
                             elif type_of_record == 47: # As a RR, this is a NSEC type
                                 name = answers_name.rrname.decode('utf-8')
                                 data = answers_name.rdata.decode('utf-8')
                                 print('\t\tAnswer Type: NSEC. RName: {}. Rdata: {}'.format(name, data))
                                 print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type NS
+                            elif type_of_record == 2: # As a RR, this is a NS
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: NS. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type CNAME
+                            elif type_of_record == 5: # As a RR, this is a CNAME
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: CNAME. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type SOA
+                            elif type_of_record == 6: # As a RR, this is a SOA
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: CNAME. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type HINFO
+                            elif type_of_record == 13: # As a RR, this is a HINFO
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: HINFO. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type MX
+                            elif type_of_record == 15: # As a RR, this is a MX
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: MX. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type RP
+                            elif type_of_record == 17: # As a RR, this is a RP
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: RP. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type OPT
+                            elif type_of_record == 41: # As a RR, this is a OPT
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: OPT. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type RRSIG
+                            elif type_of_record == 46: # As a RR, this is a RRSIG
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: RSIG. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type NSEC3
+                            elif type_of_record == 50: # As a RR, this is a NSEC3
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: NSEC3. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type TLSA
+                            elif type_of_record == 52: # As a RR, this is a TLSA
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: TLSA. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                            # Type SPF
+                            elif type_of_record == 99: # As a RR, this is a SPF
+                                name = answers_name.rrname.decode('utf-8')
+                                data = answers_name.rdata.decode('utf-8')
+                                print('\t\tAnswer Type: SPF. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
                             else:
                                 print('\t\tWe have a new type of TXT type of answer. Check')
 
+                        # In the answer section, SRV records say where you can find this resource
                         elif type(answers_name) == DNSRRSRV:
-                            # In the answer section, SRV records say where you can find this resource
                             print('\t\tServices Offered in the Answers:')
-                            data = answers_name.rrname.decode('utf-8').split('.')
-                            protocol = data[-3].split('_')[1]
-                            service = data[-4]
-                            if '_apple' in service:
-                                name = answers_name.target.decode('utf-8').split('.')[:-2][0]
-                                location = data[-5]
-                                macaddr = location.split('@')[0]
-                                ipaddr = location.split('@')[1]
-                                if '_apple-mobdev2' in service:
-                                    print(bcolors.WARNING + '\t\t\tThis host named {} offers the service iTunes WiFi Sync in the MAC {}, IP {}, protocol {}'.format(name, service, macaddr, ipaddr, protocol ) + bcolors.ENDC)
-                                else:
-                                    print(bcolors.WARNING + '\t\t\tThis host named {} offers the service {} in the MAC {}, IP {}, protocol {}'.format(name, service, macaddr, ipaddr, protocol ) + bcolors.ENDC)
-                            elif '_amzn' in service:
-                                # amzn.dmgr:806A9BE922A574669B9299828FD6B3D3:U/5Z9LxhBX:79035._amzn-wplay._tcp.local.
-                                name = answers_name.target.decode('utf-8').split('.')[:-2][0]
+                            type_of_record = answers_name.type
+                            # Type SRV
+                            if type_of_record == 33: # This is a SRV
+
+                                rrname = answers_name.rrname.decode('utf-8')
+                                data = rrname.split('.')
+                                service = data[-4]
                                 protocol = data[-3].split('_')[1]
-                                data = answers_name.rrname.decode('utf-8').split('.')#[:-4]
-                                if 'wplay' in service:
-                                    print(bcolors.WARNING + '\t\t\tThis host named {} (name based on its IP) offers the service Amazon FireTV with data {}'.format(name, data ) + bcolors.ENDC)
+                                location = data[-5]
+                                if len(location.split('@')) > 1:
+                                    # The location really has a mac and IP
+                                    macaddr = location.split('@')[0]
+                                    ipaddr = location.split('@')[1]
+                                else:
+                                    # Sometimes they only send a name
+                                    location_name = location
+
+                                # Do we have an rdata?
+                                if hasattr(answers_name, 'rdata'):
+                                    # We do have the rdata
+
+                                    if type(answers_name.rdata) == bytes:
+                                        # Values like a name
+                                        rdata = answers_name.rdata.decode('utf-8')
+                                        name = rdata.split('.')[-3]
+                                    else:
+                                        # Values like an AAAA address
+                                        rdata = answers_name.rdata
+                                        other_data = rdata
+                                else:
+                                    # We don't have the rdata. Some devices do not send it
+                                    name = answers_name.target.decode('utf-8').split('.')[-3]
+
+                                if '_apple' in service:
+                                    if not other_data:
+                                        # Values like a name b'pepe'. There is no extra data
+                                        if 'mobdev2' in service:
+                                            print(bcolors.WARNING + '\t\t\tThis host named {} offers the service iTunes WiFi Sync in the MAC {}, IP {}, protocol {}'.format(name, macaddr, ipaddr, protocol ) + bcolors.ENDC)
+                                        else:
+                                            print(bcolors.WARNING + '\t\t\tThis host named {} offers the service {} in the MAC {}, IP {}, protocol {}'.format(name, service, macaddr, ipaddr, protocol ) + bcolors.ENDC)
+                                    else:
+                                        # Values like an AAAA address
+                                        # Here the other_data has an IP address
+                                        if 'mobdev2' in service:
+                                            print(bcolors.WARNING + '\t\t\tThis host offers the service iTunes WiFi Sync in the MAC {}, IP {}, protocol {}. As name was offered the IP {}'.format(macaddr, ipaddr, protocol, other_data ) + bcolors.ENDC)
+                                        else:
+                                            print(bcolors.WARNING + '\t\t\tThis host offers some service ??? in the MAC {}, IP {}, protocol {}. As name was offered the IP {}'.format(macaddr, ipaddr, protocol, other_data ) + bcolors.ENDC)
+                                elif '_amzn' in service:
+                                    # Example: amzn.dmgr:806A9BE922A574669B9299828FD6B3D3:U/5Z9LxhBX:79035._amzn-wplay._tcp.local.
+                                    name = answers_name.target.decode('utf-8').split('.')[:-2][0]
+                                    data = answers_name.rrname.decode('utf-8').split('.')[:-4]
+                                    if 'wplay' in service:
+                                        print(bcolors.WARNING + '\t\t\tThis host named {} (name based on its IP) offers the service Amazon FireTV with data {}'.format(name, data) + bcolors.ENDC)
+                                elif '_raop' in service:
+                                    # Service for remote audio
+                                    if location_name:
+                                        # Some devices do not send a mac at all nor ip, only a name
+                                        print(bcolors.WARNING + '\t\t\tThis host named {} offers the service of Remote Audio Output Protocol on the device named {}'.format(name, macaddr, location_name) + bcolors.ENDC)
+
+                                    else:
+                                        # Some devices do not send both mac and the IP address but a mac and a 'name'
+                                        if len(ipaddr.split('.')) < 3:
+                                            print(bcolors.WARNING + '\t\t\tThis host named {} offers the service of Remote Audio Output Protocol on the MAC address {} and device with name {}'.format(name, macaddr, ipaddr) + bcolors.ENDC)
+                                        else:
+                                            print(bcolors.WARNING + '\t\t\tThis host named {} offers the service of Remote Audio Output Protocol on the MAC address {} with IP adddress {}'.format(name, macaddr, ipaddr) + bcolors.ENDC)
 
                             else:
                                 print('\t\t\tUnknown SRV Type. Target: {}. RRname: {}'.format(answers_name.target.decode('utf-8'), answers_name.rrname.decode('utf-8')))
                                 print('\t\t\t\tData to process (DNSRRSRV): {}'.format(answers_name.target.decode('utf-8')))
                                 print('\t\t\t\tData to process (DNSRRSRV): {}'.format(answers_name.rrname.decode('utf-8')))
+
+                        # In the answer section, TXT records give additional info about a resource reoord
                         elif type(answers_name) == DNSRRTXT:
                             print('\t\t\tType {}. '.format(answers.name))
+
+                        # Loop
                         answers_name = answers_name.payload
 
 
@@ -237,7 +369,6 @@ def do(pkt):
                             if args.debug:
                                 print('\t\t[Debug] Additional Record. Type: {}. RRname: {}'.format(additional_name.name, additional_name.rrname))
                             print('\t\tType: {}. RRName: {}'.format(additional_name.name, additional_name.rrname.decode('utf-8')))
-                            # This may be a DNS PTR style ipv6
                         elif type(additional_name) == DNSRR:
                             if args.debug:
                                 print('\t\t[Debug] Additional Record. Type: {}. Rdata: {}'.format(additional_name.name, additional_name.rdata))
@@ -255,9 +386,7 @@ def do(pkt):
                                 values[list(values.keys())[-1]] += temp_name
                                 # Print now
                                 for key in values:
-                                    print('\t\tName: {}. Value: {}'.format(key, values[key]))
-
-
+                                    print('\t\t\tName: {}. Value: {}'.format(key, values[key]))
 
                             elif type(additional_name.rdata) == dict:
                                 print('\t\tType: {}. Rdata Name: {}'.format(additional_name.name, additional_name.rdata[0].name))
@@ -281,6 +410,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--debug', help='Amount of debugging. This shows inner information about the flows.', action='store', required=False, type=int)
     parser.add_argument('-r', '--readfile', help='Name of the pcap file to read.', action='store', required=False, type=str)
     parser.add_argument('-i', '--interface', help='Name of the interface to use.', action='store', required=False, type=str)
+    parser.add_argument('-f', '--filter', help='Tcpdump style filter to use.', action='store', required=False, type=str)
 
     args = parser.parse_args()
 
@@ -288,8 +418,8 @@ if __name__ == '__main__':
     macvendor.refresh()
 
     if args.interface:
-        sniff(iface=args.interface,prn=do,store=0)
+        sniff(iface=args.interface,prn=do,store=0, filter=args.filter)
     elif args.readfile:
-        sniff(offline=args.readfile,prn=do,store=0)
+        sniff(offline=args.readfile,prn=do,store=0, filter=args.filter)
 
 
