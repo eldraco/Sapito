@@ -12,6 +12,8 @@ Sapito uses colors to show important information.
 If you find a bug, please report it together with the output of the tool to eldraco@gmail.com. If you send a pcap with the 
 offending packets, better.
 
+![Default Options](https://github.com/eldraco/Sapito/blob/master/sapito-gif.gif?raw=true)
+
 
 
 # Background about some services
