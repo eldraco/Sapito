@@ -361,7 +361,11 @@ def do(pkt):
                     # In additional section, is rdata always a list?????
                     if hasattr(additional_name, 'rdata'):
                         if type(additional_name.rdata) == list:
-                            rdata = additional_name.rdata[0]
+                            try:
+                                rdata = additional_name.rdata[0]
+                            except IndexError:
+                                # Some DNSRROPT records send an empty list.
+                                rdata = False
                         elif type(additional_name.rdata) == bytes:
                             rdata = additional_name.rdata.decode('utf-8')
                         else:
