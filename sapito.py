@@ -285,7 +285,11 @@ def do(pkt):
 
                                 split_rrname = rrname.split('.')
                                 service = split_rrname[-4]
-                                protocol = split_rrname[-3].split('_')[1]
+                                try:
+                                    protocol = split_rrname[-3].split('_')[1]
+                                except IndexError:
+                                    # Some records do not send the _
+                                    protocol = split_rrname[-3]
                                 location = split_rrname[-5]
                                 if len(location.split('@')) > 1:
                                     # The location really has a mac and IP
