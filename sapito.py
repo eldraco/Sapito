@@ -45,24 +45,55 @@ def do(pkt):
                 print(bcolors.HEADER + 'SrcMAC: {} ({}), SrcIP: {}. #Questions: {}. #Additional Records {}. #Answers: {}'.format(shw, mac_vendor, srcip, amount_of_questions, amount_of_additional_records, amount_of_answers) + bcolors.ENDC)
                 question_name = DNSlayer.fields['qd']
 
+
+                #####################
                 # Process the questions
                 if amount_of_questions:
                     print('\tQuestions:')
                 for pos in range(0,amount_of_questions):
                     if args.debug:
                         print('\t\t[Debug] Question Type: {}. Payload: {}'.format(question_name.qname, question_name.payload))
-                    print('\t\t{}'.format(question_name.qname.decode('utf-8')))
+                    try:
+                        print('\t\t{}'.format(question_name.qname.decode('utf-8')))
+                    except AttributeError:
+                        # Some versions of scapy do not give a Byte String
+                        print('\t\t{}'.format(question_name.qname))
                     question_name = question_name.payload
 
+
+                #####################
                 # Process the Answers
+                #
+                # We will try to parse these answers by type
                 if amount_of_answers:
                     print('\tAnswers:')
                     answers_name = DNSlayer.fields['an']
+
+                    # To process the answers we need to iterate over all of them
                     # Process each answer one after the other. They are nested, so we need to process them by changing the value of answers_name on each loop
                     for pos in range(0,amount_of_answers):
+
+
+                        # See if the rdata come as byte strings or not
+                        if hasattr(answers_name, 'rdata'):
+                            try:
+                                rdata = answers_name.rdata.decode('utf-8')
+                            except AttributeError:
+                                # Some versions of scapy do not give a Byte String
+                                rdata = answers_name.rdata
+                        else:
+                            rdata = False
+
+                        # See if the rrname come as byte strings or not
+                        try:
+                            rrname = answers_name.rrname.decode('utf-8')
+                        except AttributeError:
+                            # Some versions of scapy do not give a Byte String
+                            rrname = answers_name.rrname
+
                         if args.debug:
                             try:
-                               print('\t\t[Debug] Answer Type: {}. Rdata: {}'.format(answers_name.name, answers_name.rdata))
+                                print('\t\t[Debug] Answer Type: {}. Rdata: {}'.format(answers_name.name, rdata))
                             except AttributeError:
                                 print('\t\t[Debug] Answer Type: {}.'.format(answers_name.name))
 
@@ -74,10 +105,10 @@ def do(pkt):
 
                             # PTR
                             if type_of_record == 12: # As a RR, this is a PTR type
+
+
                                 # If we have data in the rdata...
-                                if type(answers_name.rdata) == bytes and answers_name.rdata:
-                                    # Data can be interpreted in many ways. Lets try some.
-                                    rdata = answers_name.rdata.decode('utf-8')
+                                if type(rdata) == bytes and rdata:
                                     comma_data = rdata.split(',')
                                     if len(comma_data) > 1:
                                         # It was split by , as Apple uses
@@ -122,18 +153,19 @@ def do(pkt):
                                                 except TypeError:
                                                     temp = tuple[1]
                                                 print(bcolors.WARNING + '\t\tThe osx version is {}'.format(temp) + bcolors.ENDC)
-                                            elif len(tuple) == 1:
-                                                # Only one position of text left. True when we receive only one piece of text that can not be spltted, or for the last part after the split
-                                                try:
-                                                    # In some rdata, after splitting with , we have some numbers at the end that we don't know what they are...
-                                                    int(tuple[0])
-                                                    continue
-                                                except ValueError:
-                                                    # Not a number
-                                                    pass
-                                                # Its a text, but not formated with , or =. so just print it.
-                                                print('\t\tAnswer Type: {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata.decode('utf-8')))
-                                                print('\t\t\tData to process (DNSRR): {}'.format(tuple[0]))
+                                                """
+                                                One level down
+                                                elif len(tuple) == 1:
+                                                    # Only one position of text left. True when we receive only one piece of text that can not be spltted, or for the last part after the split
+                                                    try:
+                                                        # In some rdata, after splitting with , we have some numbers at the end that we don't know what they are...
+                                                        int(tuple[0])
+                                                        continue
+                                                    except ValueError:
+                                                        # Not a number
+                                                        pass
+                                                    print('\t\t\tData to process (DNSRR): {}'.format(tuple[0]))
+                                                """
                                             else:
                                                 # We should not be here
                                                 print('\t\tOther Answer data here not processed?: {}'.format(tuple))
@@ -156,7 +188,7 @@ def do(pkt):
                                             if len(inner_data) > 4:
                                                 # Sometimes this record comes only with all the data
                                                 protocol = rdata.split('.')[-3].split('_')[1]
-                                                name_data = answers_name.rrname.decode('utf-8').split('.')
+                                                name_data = rrname.split('.')
                                                 location = rdata.split('.')[-5]
                                                 # Check if the location really has the mac and IP addr
                                                 if len(location.split('@')) > 1:
@@ -165,8 +197,8 @@ def do(pkt):
                                                     ipaddr = location.split('@')[1]
                                                     if len(name_data) > 5:
                                                         # We have a name for the service
-                                                        name = answers_name.rrname.decode('utf-8').split('.')[-6]
-                                                        sub_name = answers_name.rrname.decode('utf-8').split('.')[-5]
+                                                        name = rrname.split('.')[-6]
+                                                        sub_name = rrname.split('.')[-5]
                                                         print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, on MAC {}, and IP {} using protocol {}'.format(name, macaddr, ipaddr, protocol) + bcolors.ENDC)
                                                     else:
                                                         # We don't have a name for the service
@@ -175,123 +207,87 @@ def do(pkt):
                                                     # We don't have the mac and ip addreess
                                                     if len(name_data) > 5:
                                                         # We have a name for the service
-                                                        name = answers_name.rrname.decode('utf-8').split('.')[-6]
-                                                        sub_name = answers_name.rrname.decode('utf-8').split('.')[-5]
+                                                        name = rrname.split('.')[-6]
+                                                        sub_name = rrname.split('.')[-5]
                                                         print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {} using protocol {}'.format(name, protocol) + bcolors.ENDC)
                                                     else:
                                                         # We don't have a name for the service
                                                         print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, using protocol {}'.format(protocol) + bcolors.ENDC)
                                             else:
                                                 # Sometimes this record comes only with the name!
-                                                name = answers_name.rrname.decode('utf-8').split('.')[-5]
-                                                app_protocol = answers_name.rrname.decode('utf-8').split('.')[-4]
-                                                protocol = answers_name.rrname.decode('utf-8').split('.')[-3].split('_')[1]
+                                                name = rrname.split('.')[-5]
+                                                app_protocol = rrname.split('.')[-4]
+                                                protocol = rrname.split('.')[-3].split('_')[1]
                                                 print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, using the application protocol {} and transport protocol {}'.format(name, app_protocol, protocol) + bcolors.ENDC)
                                         elif len(rdata.split('.')) == 3:
                                             # This means that we only have a name and then .local.
                                             print(bcolors.IMPORTANT + '\t\tThe name of this device by PTR is {}'.format(rdata.split('.')[0]) + bcolors.ENDC)
                                         else:
-                                            print('\t\tAnswer Type: {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata.decode('utf-8')))
-                                            print('\t\t\tData to process: {}'.format(answers_name.rdata.decode('utf-8')))
+                                            print('\t\tAnswer Type: {}. Rdata to process: {}'.format(answers_name.name, rdata))
                                 else:
                                     # In case we receive something not formated as a Bytes structure
-                                    print('\t\tWeird situation. Check. Answer Type (str): {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata))
+                                    print('\t\tWeird situation. Check. Answer Type (str): {}. Rdata name: {}'.format(answers_name.name, rdata))
+
                             # Type TXT
                             elif type_of_record == 16: # As a RR, this is a TXT type
                                 try:
-                                    name = answers_name.rrname.decode('utf-8')
+                                    name = rrname
                                 except AttributeError:
                                     # Some scapy versions do not give a Byte String, but only a string. This messes our decoding
-                                    name = answers_name.rrname
-                                try:
-                                    data = answers_name.rdata.decode('utf-8')
-                                except AttributeError:
-                                    # Some scapy versions do not give a Byte String, but only a string. This messes our decoding
-                                    data = answers_name.rdata
-                                print('\t\tAnswer Type: TXT. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                    name = rrname
+                                #try:
+                                    #data = answers_name.rdata.decode('utf-8')
+                                #except AttributeError:
+                                    ## Some scapy versions do not give a Byte String, but only a string. This messes our decoding
+                                    #data = answers_name.rdata
+                                print('\t\tAnswer Type: TXT. RName: {}. Rdata: {}'.format(name, rdata))
+                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, rdata))
                             # Type A
                             elif type_of_record == 1: # As a RR, this is a A type
-                                name = answers_name.rrname.decode('utf-8')
-                                ip = answers_name.rdata
+                                name = rrname
+                                ip = rdata
                                 print(bcolors.WARNING + '\t\tThe IPv4 address of this device named {} is {}'.format(name, ip) + bcolors.ENDC)
                             # Type AAAA
                             elif type_of_record == 28: # As a RR, this is a AAAA type
-                                name = answers_name.rrname.decode('utf-8')
-                                ip = answers_name.rdata
+                                name = rrname
+                                ip = rdata
                                 print(bcolors.WARNING + '\t\tThe IPv6 address of this device named {} is {}'.format(name, ip) + bcolors.ENDC)
                             # Type NSEC
                             elif type_of_record == 47: # As a RR, this is a NSEC type
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: NSEC. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: NSEC. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type NS
                             elif type_of_record == 2: # As a RR, this is a NS
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: NS. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: NS. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type CNAME
                             elif type_of_record == 5: # As a RR, this is a CNAME
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: CNAME. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: CNAME. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type SOA
                             elif type_of_record == 6: # As a RR, this is a SOA
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: CNAME. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: SOA. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type HINFO
                             elif type_of_record == 13: # As a RR, this is a HINFO
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: HINFO. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: HINFO. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type MX
                             elif type_of_record == 15: # As a RR, this is a MX
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: MX. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: MX. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type RP
                             elif type_of_record == 17: # As a RR, this is a RP
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: RP. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: RP. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type OPT
                             elif type_of_record == 41: # As a RR, this is a OPT
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: OPT. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: OPT. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type RRSIG
                             elif type_of_record == 46: # As a RR, this is a RRSIG
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: RSIG. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: RSIG. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type NSEC3
                             elif type_of_record == 50: # As a RR, this is a NSEC3
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: NSEC3. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: NSEC. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type TLSA
                             elif type_of_record == 52: # As a RR, this is a TLSA
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: TLSA. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: TLSA. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type SPF
                             elif type_of_record == 99: # As a RR, this is a SPF
-                                name = answers_name.rrname.decode('utf-8')
-                                data = answers_name.rdata.decode('utf-8')
-                                print('\t\tAnswer Type: SPF. RName: {}. Rdata: {}'.format(name, data))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, data))
+                                print('\t\tAnswer Type: SPF. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             else:
                                 print('\t\tWe have a new type of TXT type of answer. Check')
 
@@ -302,11 +298,10 @@ def do(pkt):
                             # Type SRV
                             if type_of_record == 33: # This is a SRV
 
-                                rrname = answers_name.rrname.decode('utf-8')
-                                data = rrname.split('.')
-                                service = data[-4]
-                                protocol = data[-3].split('_')[1]
-                                location = data[-5]
+                                split_rrname = rrname.split('.')
+                                service = split_rrname[-4]
+                                protocol = split_rrname[-3].split('_')[1]
+                                location = split_rrname[-5]
                                 if len(location.split('@')) > 1:
                                     # The location really has a mac and IP
                                     macaddr = location.split('@')[0]
@@ -315,18 +310,11 @@ def do(pkt):
                                 # Do we have an rdata?
                                 if hasattr(answers_name, 'rdata'):
                                     # We do have the rdata
-
-                                    if type(answers_name.rdata) == bytes:
-                                        # Values like a name
-                                        rdata = answers_name.rdata.decode('utf-8')
-                                        try:
-                                            name = rdata.split('.')[-3]
-                                        except IndexError:
-                                            # Some rdata do not have the .local, only the name.
-                                            name = rdata.split('.')[0]
-                                    else:
-                                        # Values like an AAAA address
-                                        rdata = answers_name.rdata
+                                    try:
+                                        name = rdata.split('.')[-3]
+                                    except IndexError:
+                                        # Some rdata do not have the .local, only the name.
+                                        name = rdata.split('.')[0]
                                 else:
                                     # We don't have the rdata. Some devices do not send it
                                     name = answers_name.target.decode('utf-8').split('.')[-3]
@@ -348,7 +336,7 @@ def do(pkt):
                                 elif '_amzn' in service:
                                     # Example: amzn.dmgr:806A9BE922A574669B9299828FD6B3D3:U/5Z9LxhBX:79035._amzn-wplay._tcp.local.
                                     name = answers_name.target.decode('utf-8').split('.')[:-2][0]
-                                    data = answers_name.rrname.decode('utf-8').split('.')[:-4]
+                                    data = rrname.split('.')[:-4]
                                     if 'wplay' in service:
                                         print(bcolors.WARNING + '\t\t\tThis host named {} (name based on its IP) offers the service Amazon FireTV with data {}'.format(name, data) + bcolors.ENDC)
                                 elif '_raop' in service:
@@ -365,9 +353,9 @@ def do(pkt):
                                             print(bcolors.WARNING + '\t\t\tThis host named {} offers the service of Remote Audio Output Protocol on the MAC address {} with IP adddress {}'.format(name, macaddr, ipaddr) + bcolors.ENDC)
 
                             else:
-                                print('\t\t\tUnknown SRV Type. Target: {}. RRname: {}'.format(answers_name.target.decode('utf-8'), answers_name.rrname.decode('utf-8')))
+                                print('\t\t\tUnknown SRV Type. Target: {}. RRname: {}'.format(answers_name.target.decode('utf-8'), rrname))
                                 print('\t\t\t\tData to process (DNSRRSRV): {}'.format(answers_name.target.decode('utf-8')))
-                                print('\t\t\t\tData to process (DNSRRSRV): {}'.format(answers_name.rrname.decode('utf-8')))
+                                print('\t\t\t\tData to process (DNSRRSRV): {}'.format(rrname))
 
                         # In the answer section, TXT records give additional info about a resource reoord
                         elif type(answers_name) == DNSRRTXT:
@@ -377,31 +365,53 @@ def do(pkt):
                         answers_name = answers_name.payload
 
 
+
+                #####################
                 # Process the Additional records
                 # Amount of additional records
                 if amount_of_additional_records:
                     print('\tAdditional Records:')
                     additional_name = DNSlayer.fields['ar']
+
+                    # In additional section, is rdata always a list?????
+                    if hasattr(additional_name, 'rdata'):
+                        if type(additional_name.rdata) == list:
+                            rdata = additional_name.rdata[0]
+                        elif type(additional_name.rdata) == bytes:
+                            rdata = additional_name.rdata.decode('utf-8')
+                        else:
+                            rdata = additional_name.rdata
+                    else:
+                        rdata = False
+
+                    # See if the rrname come as byte strings or not
+                    try:
+                        rrname = additional_name.rrname.decode('utf-8')
+                    except AttributeError:
+                        # Some versions of scapy do not give a Byte String
+                        rrname = additional_name.rrname
+
+
+
                     for pos in range(0,amount_of_additional_records):
+                        if args.debug:
+                            print('\t\t[Debug] Additional Record. Type: {}. Rdata: {}. RRname: {}'.format(additional_name.name, rdata, rrname))
+
                         if type(additional_name) == DNSRROPT:
-                            if args.debug:
-                                print('\t\t[Debug] Additional Record. Type: {}. Rdata: {}'.format(additional_name.name, additional_name.rdata))
-                            print('\t\tType: {}. Rdata name: {}'.format(additional_name.name, additional_name.rdata[0].name))
+                            print('\t\tType: {}. Rdata name: {}'.format(additional_name.name, rdata))
+
                         elif type(additional_name) == DNSRRNSEC:
-                            if args.debug:
-                                print('\t\t[Debug] Additional Record. Type: {}. RRname: {}'.format(additional_name.name, additional_name.rrname))
-                            print('\t\tType: {}. RRName: {}'.format(additional_name.name, additional_name.rrname.decode('utf-8')))
+                            print('\t\tType: {}. RRName: {}'.format(additional_name.name, rrname))
+
                         elif type(additional_name) == DNSRR:
-                            if args.debug:
-                                print('\t\t[Debug] Additional Record. Type: {}. Rdata: {}'.format(additional_name.name, additional_name.rdata))
-                            # If its a Bytes structure and is not empty
-                            if type(additional_name.rdata) == bytes and additional_name.rdata:
-                                print('\t\tType: {}. Rdata Bytes: {}'.format(additional_name.name, additional_name.rdata))
+                            print('\t\tType: {}. Rdata Bytes: {}'.format(additional_name.name, rdata))
+                            # If we have rdata and is formated with =
+                            if len(rdata.split('=')) > 1:
                                 # Lets parts this shit of string b'rpBA=2D:F6:28:9B:87:99rpAD=82ae95302041rpHI=85e0df6055a0rpHN=2d48a2585755rpVr=164.16rpHA=0736452b945f'
-                                rdata = additional_name.rdata.decode('utf-8').split('=')
+                                inner_rdata = rdata.split('=')
                                 values = {}
-                                temp_name = rdata[0]
-                                for data in rdata[1:]:
+                                temp_name = inner_rdata[0]
+                                for data in inner_rdata[1:]:
                                     values[temp_name] =  data[:-4]
                                     temp_name = data[-4:]
                                 # To the last, add the last 4 bytes
@@ -410,12 +420,10 @@ def do(pkt):
                                 for key in values:
                                     print('\t\t\tName: {}. Value: {}'.format(key, values[key]))
 
-                            elif type(additional_name.rdata) == dict:
-                                print('\t\tType: {}. Rdata Name: {}'.format(additional_name.name, additional_name.rdata[0].name))
                         elif type(additional_name) == DNSRRSRV:
-                            print('\t\tType: {}. Target: {}. RRname: {}'.format(additional_name.name, additional_name.target.decode('utf-8'), additional_name.rrname.decode('utf-8')))
+                            print('\t\tType: {}. Target: {}. RRname: {}'.format(additional_name.name, additional_name.target.decode('utf-8'), rrname))
                             print('\t\t\tData to process: {}'.format(additional_name.target.decode('utf-8')))
-                            print('\t\t\tData to process: {}'.format(additional_name.rrname.decode('utf-8')))
+                            print('\t\t\tData to process: {}'.format(rrname))
                         else:
                             # Probably NoneType
                             print('Attention! Other type: {}'.format(type(additional_name)))
