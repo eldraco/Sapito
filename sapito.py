@@ -198,7 +198,11 @@ def do(pkt):
                                     print('\t\tWeird situation. Check. Answer Type (str): {}. Rdata name: {}'.format(answers_name.name, answers_name.rdata))
                             # Type TXT
                             elif type_of_record == 16: # As a RR, this is a TXT type
-                                name = answers_name.rrname.decode('utf-8')
+                                try:
+                                    name = answers_name.rrname.decode('utf-8')
+                                except AttributeError:
+                                    # Some scapy versions do not give a Byte String, but only a string. This messes our decoding
+                                    name = answers_name.rrname
                                 try:
                                     data = answers_name.rdata.decode('utf-8')
                                 except AttributeError:
