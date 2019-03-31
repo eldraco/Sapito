@@ -73,7 +73,6 @@ def do(pkt):
                     # Process each answer one after the other. They are nested, so we need to process them by changing the value of answers_name on each loop
                     for pos in range(0,amount_of_answers):
 
-
                         # See if the rdata come as byte strings or not
                         if hasattr(answers_name, 'rdata'):
                             try:
@@ -106,9 +105,8 @@ def do(pkt):
                             # PTR
                             if type_of_record == 12: # As a RR, this is a PTR type
 
-
                                 # If we have data in the rdata...
-                                if type(rdata) == bytes and rdata:
+                                if rdata:
                                     comma_data = rdata.split(',')
                                     if len(comma_data) > 1:
                                         # It was split by , as Apple uses
@@ -153,19 +151,6 @@ def do(pkt):
                                                 except TypeError:
                                                     temp = tuple[1]
                                                 print(bcolors.WARNING + '\t\tThe osx version is {}'.format(temp) + bcolors.ENDC)
-                                                """
-                                                One level down
-                                                elif len(tuple) == 1:
-                                                    # Only one position of text left. True when we receive only one piece of text that can not be spltted, or for the last part after the split
-                                                    try:
-                                                        # In some rdata, after splitting with , we have some numbers at the end that we don't know what they are...
-                                                        int(tuple[0])
-                                                        continue
-                                                    except ValueError:
-                                                        # Not a number
-                                                        pass
-                                                    print('\t\t\tData to process (DNSRR): {}'.format(tuple[0]))
-                                                """
                                             else:
                                                 # We should not be here
                                                 print('\t\tOther Answer data here not processed?: {}'.format(tuple))
