@@ -72,6 +72,8 @@ def do(pkt):
                     # To process the answers we need to iterate over all of them
                     # Process each answer one after the other. They are nested, so we need to process them by changing the value of answers_name on each loop
                     for pos in range(0,amount_of_answers):
+                        rdata = False
+                        rrname = False
 
                         # See if the rdata come as byte strings or not
                         if hasattr(answers_name, 'rdata'):
@@ -215,18 +217,7 @@ def do(pkt):
 
                             # Type TXT
                             elif type_of_record == 16: # As a RR, this is a TXT type
-                                try:
-                                    name = rrname
-                                except AttributeError:
-                                    # Some scapy versions do not give a Byte String, but only a string. This messes our decoding
-                                    name = rrname
-                                #try:
-                                    #data = answers_name.rdata.decode('utf-8')
-                                #except AttributeError:
-                                    ## Some scapy versions do not give a Byte String, but only a string. This messes our decoding
-                                    #data = answers_name.rdata
-                                print('\t\tAnswer Type: TXT. RName: {}. Rdata: {}'.format(name, rdata))
-                                print('\t\t\tTo Process. RName: {}. Rdata: {}'.format(name, rdata))
+                                print('\t\tAnswer Type: TXT. RName: {}. Rdata to process: {}'.format(rrname, rdata))
                             # Type A
                             elif type_of_record == 1: # As a RR, this is a A type
                                 name = rrname
@@ -297,6 +288,7 @@ def do(pkt):
                                     ipaddr = location.split('@')[1]
 
                                 # Do we have an rdata?
+                                """
                                 if hasattr(answers_name, 'rdata'):
                                     # We do have the rdata
                                     try:
@@ -307,10 +299,12 @@ def do(pkt):
                                 else:
                                     # We don't have the rdata. Some devices do not send it
                                     name = answers_name.target.decode('utf-8').split('.')[-3]
+                                """
 
                                 if '_apple' in service:
                                     if hasattr(answers_name, 'rdata') and type(answers_name.rdata) == bytes:
                                         # Values like a name b'pepe'. There is no extra data
+                                        name = rdata
                                         if 'mobdev2' in service:
                                             print(bcolors.WARNING + '\t\t\tThis host named {} offers the service iTunes WiFi Sync in the MAC {}, IP {}, protocol {}'.format(name, macaddr, ipaddr, protocol ) + bcolors.ENDC)
                                         else:
@@ -328,8 +322,19 @@ def do(pkt):
                                     data = rrname.split('.')[:-4]
                                     if 'wplay' in service:
                                         print(bcolors.WARNING + '\t\t\tThis host named {} (name based on its IP) offers the service Amazon FireTV with data {}'.format(name, data) + bcolors.ENDC)
+                                elif '_airdrop' in service:
+                                    # Service for airdrop from Apple
+                                    airdrop_instance = rrname.split('.')[-5]
+                                    target = answers_name.target.decode('utf-8').split('.')[-3]
+                                    if type(rdata[0]) == bytes:
+                                        data = rdata[0].decode('utf-8')
+                                    else:
+                                        data = rdata[0]
+                                    print(bcolors.WARNING + '\t\t\tThis host offers the service AirDrop, instance name {}, target {} and data {}'.format(airdrop_instance, target, data) + bcolors.ENDC)
                                 elif '_raop' in service:
                                     # Service for remote audio
+                                    # Not sure about this name????
+                                    name = rdata
                                     if len(location.split('@')) < 2:
                                         # Some devices do not send a mac at all nor ip, only a name
                                         print(bcolors.WARNING + '\t\t\tThis host named {} offers the service of Remote Audio Output Protocol on the device named {}'.format(name, macaddr, location) + bcolors.ENDC)
@@ -362,18 +367,20 @@ def do(pkt):
                     print('\tAdditional Records:')
                     additional_name = DNSlayer.fields['ar']
 
-                    # In additional section, is rdata always a list?????
+                    # Some rdata comes as a list and some as a string. Lets convert the string into a list
                     if hasattr(additional_name, 'rdata'):
                         if type(additional_name.rdata) == list:
                             try:
-                                rdata = additional_name.rdata[0]
+                                rdata = additional_name.rdata
                             except IndexError:
                                 # Some DNSRROPT records send an empty list.
                                 rdata = False
                         elif type(additional_name.rdata) == bytes:
-                            rdata = additional_name.rdata.decode('utf-8')
+                            # See the conversion to list with []
+                            rdata = [additional_name.rdata.decode('utf-8')]
                         else:
-                            rdata = additional_name.rdata
+                            # See the conversion to list with []
+                            rdata = [additional_name.rdata]
                     else:
                         rdata = False
 
@@ -398,20 +405,25 @@ def do(pkt):
 
                         elif type(additional_name) == DNSRR:
                             print('\t\tType: {}. Rdata Bytes: {}'.format(additional_name.name, rdata))
-                            # If we have rdata and is formated with =
-                            if len(rdata.split('=')) > 1:
-                                # Lets parts this shit of string b'rpBA=2D:F6:28:9B:87:99rpAD=82ae95302041rpHI=85e0df6055a0rpHN=2d48a2585755rpVr=164.16rpHA=0736452b945f'
-                                inner_rdata = rdata.split('=')
-                                values = {}
-                                temp_name = inner_rdata[0]
-                                for data in inner_rdata[1:]:
-                                    values[temp_name] =  data[:-4]
-                                    temp_name = data[-4:]
-                                # To the last, add the last 4 bytes
-                                values[list(values.keys())[-1]] += temp_name
-                                # Print now
-                                for key in values:
-                                    print('\t\t\tName: {}. Value: {}'.format(key, values[key]))
+                            # We may have rdata as a list with several parts.
+                            for list_data in rdata:
+                                # If each part of rdata is bytes, convert it
+                                if type(list_data) == bytes:
+                                    list_data = list_data.decode('utf-8')
+                                # If we have rdata and is formated with =
+                                if len(list_data.split('=')) > 1:
+                                    # Lets parts this shit of string b'rpBA=2D:F6:28:9B:87:99rpAD=82ae95302041rpHI=85e0df6055a0rpHN=2d48a2585755rpVr=164.16rpHA=0736452b945f'
+                                    inner_rdata = list_data.split('=')
+                                    values = {}
+                                    temp_name = inner_rdata[0]
+                                    for data in inner_rdata[1:]:
+                                        values[temp_name] =  data[:-4]
+                                        temp_name = data[-4:]
+                                    # To the last, add the last 4 bytes
+                                    values[list(values.keys())[-1]] += temp_name
+                                    # Print now
+                                    for key in values:
+                                        print('\t\t\tName: {}. Value: {}'.format(key, values[key]))
 
                         elif type(additional_name) == DNSRRSRV:
                             print('\t\tType: {}. Target: {}. RRname: {}'.format(additional_name.name, additional_name.target.decode('utf-8'), rrname))
