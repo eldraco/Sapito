@@ -345,7 +345,11 @@ def do(pkt):
                                             print(bcolors.WARNING + '\t\t\tThis host offers some service ??? in the MAC {}, IP {}, protocol {}. As name was offered the IP {}'.format(macaddr, ipaddr, protocol, rdata ) + bcolors.ENDC)
                                 elif '_amzn' in service:
                                     # Example: amzn.dmgr:806A9BE922A574669B9299828FD6B3D3:U/5Z9LxhBX:79035._amzn-wplay._tcp.local.
-                                    name = answers_name.target.decode('utf-8').split('.')[:-2][0]
+                                    try:
+                                        name = answers_name.target.decode('utf-8').split('.')[:-2][0]
+                                    except IndexError:
+                                        # Some records come empty...
+                                        name = ''
                                     data = rrname.split('.')[:-4]
                                     if 'wplay' in service:
                                         print(bcolors.WARNING + '\t\t\tThis host named {} (name based on its IP) offers the service Amazon FireTV with data {}'.format(name, data) + bcolors.ENDC)
