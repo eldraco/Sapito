@@ -77,11 +77,14 @@ def do(pkt):
 
                         # See if the rdata come as byte strings or not
                         if hasattr(answers_name, 'rdata'):
-                            try:
-                                rdata = answers_name.rdata.decode('utf-8')
-                            except AttributeError:
-                                # Some versions of scapy do not give a Byte String
+                            if type(answers_name.rdata) == list:
                                 rdata = answers_name.rdata
+                            elif type(answers_name.rdata) == bytes:
+                                # See the conversion to list with []
+                                rdata = [answers_name.rdata.decode('utf-8')]
+                            else:
+                                # See the conversion to list with []
+                                rdata = [answers_name.rdata]
                         else:
                             rdata = False
 
@@ -109,115 +112,153 @@ def do(pkt):
 
                                 # If we have data in the rdata...
                                 if rdata:
-                                    comma_data = rdata.split(',')
-                                    if len(comma_data) > 1:
-                                        # It was split by , as Apple uses
-                                        # Parse the rdata trying to understand each piece of information.
-                                        for data1 in comma_data:
-                                            # The split works even if there is no = in the string. In that case the string is returned inside an array
-                                            tuple = data1.split('=')
-                                            if 'model' in tuple[0].lower():
-                                                if 'macbook' in tuple[1].lower():
-                                                    print(bcolors.WARNING + '\t\tThe model of the MacBook is {}'.format(tuple[1]) + bcolors.ENDC)
-                                                # Now process all the models of ipads we know. Data from https://www.theiphonewiki.com
-                                                elif 'J208AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is an iPad Pro (10.5-inch) (iPad7,4). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J321AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is an iPad Pro (12.9-inch) (3rd generation) Wi-Fi + Cellular model. It has 4 GB RAM and is available with 64, 256 and 512 GB of storage. Its identifier is iPad8,7. Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J127AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is an iPad Pro (9.7-inch) (iPad6,3). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J81AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is the iPad Air 2 (iPad5,3). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J72bAP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is the iPad (6th generation) (iPad7,6). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J71bAP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is the iPad (6th generation) (iPad7,5). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J128AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is the iPad Pro (9.7-inch) (iPad6,4). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J82AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is the iPad Air 2 (iPad5,4). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J318AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is the iPad Pro (11-inch) Wi-Fi + Cellular model. It has 4 GB RAM and is available with 64, 256 and 512 GB of storage. Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J96AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is the iPad mini 4 (iPad5,1). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J207AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tThis is the iPad Pro (10.5-inch) (iPad7,3). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                elif 'J' in tuple[1] and 'AP' in tuple[1]:
-                                                    print(bcolors.WARNING + '\t\tAn Apple device that we don\'t know!!. Search it manually in https://www.theiphonewiki.com. Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
-                                                else:
-                                                    print('\t\tThe model of the device is {}'.format(tuple[1]))
-                                            elif 'osxvers' in tuple[0].lower():
-                                                # Sometimes the str is broken wit 'ecolor' at the end and some 3 numbers
-                                                try:
-                                                    temp = tuple[1].split('ecolor')[0]
-                                                except TypeError:
-                                                    temp = tuple[1]
-                                                print(bcolors.WARNING + '\t\tThe osx version is {}'.format(temp) + bcolors.ENDC)
-                                            else:
-                                                # We should not be here
-                                                print('\t\tOther Answer data here not processed?: {}'.format(tuple))
-                                        # Out of the for
-                                    else:
-                                        # It was not splitted by ,
-                                        if '_homekit' in rdata:
-                                            print(bcolors.WARNING + '\t\tThis host knows the Apple Homekit with id: {}'.format(rdata.split('.')[0]) + bcolors.ENDC)
-                                        elif '_companion-link' in rdata:
-                                            # Sometimes the companion-link DO have a name of device...
-                                            if '_companion-link' in rdata.split('.')[1]:
-                                                print(bcolors.WARNING + '\t\tThis host knows about the device called {} that has AirDrop active. And maybe other services from Apple.'.format(rdata.split('.')[0]) + bcolors.ENDC)
-                                            # Sometimes the companion-link does not have a name of device...
-                                            elif '_companion-link' in rdata.split('.')[0]:
-                                                print(bcolors.WARNING + '\t\tThis host has AirDrop activated.'.format(rdata.split('.')[0]) + bcolors.ENDC)
-                                        elif 'Elmedia Video Player' in rdata and 'airplay' in rdata:
-                                            print('\t\tAirplay Enabled in this host.')
-                                        elif 'mobdev' in rdata:
-                                            inner_data = rdata.split('.')
-                                            if len(inner_data) > 4:
-                                                # Sometimes this record comes only with all the data
-                                                protocol = rdata.split('.')[-3].split('_')[1]
-                                                name_data = rrname.split('.')
-                                                location = rdata.split('.')[-5]
-                                                # Check if the location really has the mac and IP addr
-                                                if len(location.split('@')) > 1:
-                                                    # It does
-                                                    macaddr = location.split('@')[0]
-                                                    ipaddr = location.split('@')[1]
-                                                    if len(name_data) > 5:
-                                                        # We have a name for the service
-                                                        name = rrname.split('.')[-6]
-                                                        sub_name = rrname.split('.')[-5]
-                                                        print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, on MAC {}, and IP {} using protocol {}'.format(name, macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                    # There may be one or more rdata parts, so just iterate over them.
+                                    for inner_data in rdata:
+                                        comma_data = inner_data.split(',')
+                                        if len(comma_data) > 1:
+                                            # It was split by , as Apple uses
+                                            # Parse the rdata trying to understand each piece of information.
+                                            for data1 in comma_data:
+                                                # The split works even if there is no = in the string. In that case the string is returned inside an array
+                                                tuple = data1.split('=')
+                                                if 'model' in tuple[0].lower():
+                                                    if 'macbook' in tuple[1].lower():
+                                                        print(bcolors.WARNING + '\t\tThe model of the MacBook is {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    # Now process all the models of ipads we know. Data from https://www.theiphonewiki.com
+                                                    elif 'J208AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is an iPad Pro (10.5-inch) (iPad7,4). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J321AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is an iPad Pro (12.9-inch) (3rd generation) Wi-Fi + Cellular model. It has 4 GB RAM and is available with 64, 256 and 512 GB of storage. Its identifier is iPad8,7. Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J127AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is an iPad Pro (9.7-inch) (iPad6,3). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J81AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is the iPad Air 2 (iPad5,3). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J72bAP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is the iPad (6th generation) (iPad7,6). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J71bAP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is the iPad (6th generation) (iPad7,5). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J128AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is the iPad Pro (9.7-inch) (iPad6,4). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J82AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is the iPad Air 2 (iPad5,4). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J318AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is the iPad Pro (11-inch) Wi-Fi + Cellular model. It has 4 GB RAM and is available with 64, 256 and 512 GB of storage. Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J96AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is the iPad mini 4 (iPad5,1). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J207AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tThis is the iPad Pro (10.5-inch) (iPad7,3). Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
+                                                    elif 'J' in tuple[1] and 'AP' in tuple[1]:
+                                                        print(bcolors.WARNING + '\t\tAn Apple device that we don\'t know!!. Search it manually in https://www.theiphonewiki.com. Model Number: {}'.format(tuple[1]) + bcolors.ENDC)
                                                     else:
-                                                        # We don't have a name for the service
-                                                        print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, on MAC {}, and IP {} using protocol {}'.format(macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                                        print('\t\tThe model of the device is {}'.format(tuple[1]))
+                                                elif 'osxvers' in tuple[0].lower():
+                                                    # Sometimes the str is broken wit 'ecolor' at the end and some 3 numbers
+                                                    try:
+                                                        temp = tuple[1].split('ecolor')[0]
+                                                    except TypeError:
+                                                        temp = tuple[1]
+                                                    print(bcolors.WARNING + '\t\tThe osx version is {}'.format(temp) + bcolors.ENDC)
                                                 else:
-                                                    # We don't have the mac and ip addreess
-                                                    if len(name_data) > 5:
-                                                        # We have a name for the service
-                                                        name = rrname.split('.')[-6]
-                                                        sub_name = rrname.split('.')[-5]
-                                                        print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {} using protocol {}'.format(name, protocol) + bcolors.ENDC)
-                                                    else:
-                                                        # We don't have a name for the service
-                                                        print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, using protocol {}'.format(protocol) + bcolors.ENDC)
-                                            else:
-                                                # Sometimes this record comes only with the name!
-                                                name = rrname.split('.')[-5]
-                                                app_protocol = rrname.split('.')[-4]
-                                                protocol = rrname.split('.')[-3].split('_')[1]
-                                                print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, using the application protocol {} and transport protocol {}'.format(name, app_protocol, protocol) + bcolors.ENDC)
-                                        elif len(rdata.split('.')) == 3:
-                                            # This means that we only have a name and then .local.
-                                            print(bcolors.IMPORTANT + '\t\tThe name of this device by PTR is {}'.format(rdata.split('.')[0]) + bcolors.ENDC)
+                                                    # We should not be here
+                                                    print('\t\tOther Answer data here not processed?: {}'.format(tuple))
+                                            # Out of the for
                                         else:
-                                            print('\t\tAnswer Type: {}. Rdata to process: {}'.format(answers_name.name, rdata))
+                                            # It was not splitted by ,
+                                            if '_homekit' in inner_data:
+                                                print(bcolors.WARNING + '\t\tThis host knows the Apple Homekit with id: {}'.format(inner_data.split('.')[0]) + bcolors.ENDC)
+                                            elif '_companion-link' in inner_data:
+                                                # Sometimes the companion-link DO have a name of device...
+                                                if '_companion-link' in inner_data.split('.')[1]:
+                                                    print(bcolors.WARNING + '\t\tThis host knows about the device called {} that has AirDrop active. And maybe other services from Apple.'.format(inner_data.split('.')[0]) + bcolors.ENDC)
+                                                # Sometimes the companion-link does not have a name of device...
+                                                elif '_companion-link' in inner_data.split('.')[0]:
+                                                    print(bcolors.WARNING + '\t\tThis host has AirDrop activated.'.format(inner_data.split('.')[0]) + bcolors.ENDC)
+                                            elif 'Elmedia Video Player' in inner_data and 'airplay' in inner_data:
+                                                print('\t\tAirplay Enabled in this host.')
+                                            elif 'mobdev' in inner_data:
+                                                more_inner_data = inner_data.split('.')
+                                                if len(more_inner_data) > 4:
+                                                    # Sometimes this record comes only with all the data
+                                                    protocol = more_inner_data[-3].split('_')[1]
+                                                    name_data = rrname.split('.')
+                                                    location = more_inner_data[-5]
+                                                    # Check if the location really has the mac and IP addr
+                                                    if len(location.split('@')) > 1:
+                                                        # It does
+                                                        macaddr = location.split('@')[0]
+                                                        ipaddr = location.split('@')[1]
+                                                        if len(name_data) > 5:
+                                                            # We have a name for the service
+                                                            name = rrname.split('.')[-6]
+                                                            sub_name = rrname.split('.')[-5]
+                                                            print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, on MAC {}, and IP {} using protocol {}'.format(name, macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                                        else:
+                                                            # We don't have a name for the service
+                                                            print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, on MAC {}, and IP {} using protocol {}'.format(macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                                    else:
+                                                        # We don't have the mac and ip addreess
+                                                        if len(name_data) > 5:
+                                                            # We have a name for the service
+                                                            name = rrname.split('.')[-6]
+                                                            sub_name = rrname.split('.')[-5]
+                                                            print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {} using protocol {}'.format(name, protocol) + bcolors.ENDC)
+                                                        else:
+                                                            # We don't have a name for the service
+                                                            print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, using protocol {}'.format(protocol) + bcolors.ENDC)
+                                                else:
+                                                    # Sometimes this record comes only with the name!
+                                                    name = rrname.split('.')[-5]
+                                                    app_protocol = rrname.split('.')[-4]
+                                                    protocol = rrname.split('.')[-3].split('_')[1]
+                                                    print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, using the application protocol {} and transport protocol {}'.format(name, app_protocol, protocol) + bcolors.ENDC)
+                                            elif len(inner_data.split('.')) == 3:
+                                                # This means that we only have a name and then .local.
+                                                print(bcolors.IMPORTANT + '\t\tThe name of this device by PTR is {}'.format(inner_data.split('.')[0]) + bcolors.ENDC)
+                                            else:
+                                                print('\t\tAnswer Type: {}. Rdata to process: {}'.format(answers_name.name, inner_data))
                                 else:
                                     # In case we receive something not formated as a Bytes structure
-                                    print('\t\tWeird situation. Check. Answer Type (str): {}. Rdata name: {}'.format(answers_name.name, rdata))
+                                    print('\t\tWeird situation. No rdata?. Check. Answer Type (str): {}. Rdata name: {}'.format(answers_name.name, rdata))
 
                             # Type TXT
                             elif type_of_record == 16: # As a RR, this is a TXT type
-                                print('\t\tAnswer Type: TXT. RName: {}. Rdata to process: {}'.format(rrname, rdata))
+                                try:
+                                    protocol = rrname.split('.')[-3].split('_')[1]
+                                    service = rrname.split('.')[-4]
+                                    name = rrname.split('.')[-5]
+                                    if 'companion-link' in service:
+                                        print(bcolors.WARNING + '\t\tThis host named {}, offers the service of AirDrop using protocol {}.'.format(name, protocol) + bcolors.ENDC)
+                                        # Example of rdata: [b'rpBA=92:66:E0:E7:19:13', b'rpVr=164.16', b'rpAD=523dffb16051']
+                                        for inner_data in rdata:
+                                            try:
+                                                temp_inner_data = inner_data.decode('utf-8').split('=')
+                                                print('\t\t\tVariable {}, Data: {}.'.format(temp_inner_data[0], temp_inner_data[1]))
+                                            except:
+                                                # Maybe rdata is not spliteable with =? or is not a bytes?
+                                                print('\t\tAnswer Type: TXT that we couldn\'t parse. Check 1. RName: {}. Rdata to process: {}'.format(rrname, rdata))
+                                    elif '_device-info' in service:
+                                        # Example: [b'model=MacBookPro14,1', b'osxvers=18', b'ecolor=157,157,160']
+                                        print(bcolors.WARNING + '\t\tThis host is a:' + bcolors.ENDC)
+                                        for inner_data in rdata:
+                                            try:
+                                                temp_inner_data = inner_data.decode('utf-8').split('=')
+                                                if 'model' in temp_inner_data[0] and 'mac' in temp_inner_data[1].lower():
+                                                    print(bcolors.WARNING + '\t\t\tMacBook model: {}'.format(temp_inner_data[1]) + bcolors.ENDC)
+                                                elif 'osx' in temp_inner_data[0]:
+                                                    print(bcolors.WARNING + '\t\t\tOSX Version: {}'.format(temp_inner_data[1]) + bcolors.ENDC)
+                                                elif 'color' in temp_inner_data[0]:
+                                                    print(bcolors.WARNING + '\t\t\tSome colors data: {}'.format(temp_inner_data[1]) + bcolors.ENDC)
+                                            except:
+                                                # Maybe rdata is not spliteable with =? or is not a bytes?
+                                                print('\t\tAnswer Type: TXT that we couldn\'t parse. Check 11. RName: {}. Rdata to process: {}'.format(rrname, rdata))
+                                    elif '_airdrop' in service:
+                                        # Example rdata: [b'flags=507']
+                                        print(bcolors.WARNING + '\t\tThis host offers the AirDrop service with data: {}'.format(rdata[0].decode('utf-8')) + bcolors.ENDC)
+                                    else:
+                                        print('\t\tAnswer Type: TXT that we couldn\'t parse. Check 2. RName: {}. Rdata to process: {}'.format(rrname, rdata))
+                                except:
+                                    print('\t\tAnswer Type: TXT that we couldn\'t parse. Check 3. RName: {}. Rdata to process: {}'.format(rrname, rdata))
+
                             # Type A
                             elif type_of_record == 1: # As a RR, this is a A type
                                 name = rrname
@@ -286,20 +327,6 @@ def do(pkt):
                                     # The location really has a mac and IP
                                     macaddr = location.split('@')[0]
                                     ipaddr = location.split('@')[1]
-
-                                # Do we have an rdata?
-                                """
-                                if hasattr(answers_name, 'rdata'):
-                                    # We do have the rdata
-                                    try:
-                                        name = rdata.split('.')[-3]
-                                    except IndexError:
-                                        # Some rdata do not have the .local, only the name.
-                                        name = rdata.split('.')[0]
-                                else:
-                                    # We don't have the rdata. Some devices do not send it
-                                    name = answers_name.target.decode('utf-8').split('.')[-3]
-                                """
 
                                 if '_apple' in service:
                                     if hasattr(answers_name, 'rdata') and type(answers_name.rdata) == bytes:
