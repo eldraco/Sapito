@@ -322,7 +322,11 @@ def do(pkt):
                                 except IndexError:
                                     # Some records do not send the _
                                     protocol = split_rrname[-3]
-                                location = split_rrname[-5]
+                                try:
+                                    location = split_rrname[-5]
+                                except IndexError:
+                                    # Some records do not have the location here
+                                    location = False
                                 if len(location.split('@')) > 1:
                                     # The location really has a mac and IP
                                     macaddr = location.split('@')[0]
