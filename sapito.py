@@ -169,7 +169,7 @@ def do(pkt):
                                             elif '_companion-link' in inner_data:
                                                 # Sometimes the companion-link DO have a name of device...
                                                 if '_companion-link' in inner_data.split('.')[1]:
-                                                    print(bcolors.WARNING + '\t\tThis host knows about the device called {} that has AirDrop active. And maybe other services from Apple.'.format(inner_data.split('.')[0]) + bcolors.ENDC)
+                                                    print(bcolors.WARNING + '\t\tThis host knows about the device named {} that has AirDrop active. And maybe other services from Apple.'.format(inner_data.split('.')[0]) + bcolors.ENDC)
                                                 # Sometimes the companion-link does not have a name of device...
                                                 elif '_companion-link' in inner_data.split('.')[0]:
                                                     print(bcolors.WARNING + '\t\tThis host has AirDrop activated.'.format(inner_data.split('.')[0]) + bcolors.ENDC)
@@ -191,7 +191,7 @@ def do(pkt):
                                                             # We have a name for the service
                                                             name = rrname.split('.')[-6]
                                                             sub_name = rrname.split('.')[-5]
-                                                            print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, on MAC {}, and IP {} using protocol {}'.format(name, macaddr, ipaddr, protocol) + bcolors.ENDC)
+                                                            print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service named {}, on MAC {}, and IP {} using protocol {}'.format(name, macaddr, ipaddr, protocol) + bcolors.ENDC)
                                                         else:
                                                             # We don't have a name for the service
                                                             print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, on MAC {}, and IP {} using protocol {}'.format(macaddr, ipaddr, protocol) + bcolors.ENDC)
@@ -201,7 +201,7 @@ def do(pkt):
                                                             # We have a name for the service
                                                             name = rrname.split('.')[-6]
                                                             sub_name = rrname.split('.')[-5]
-                                                            print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {} using protocol {}'.format(name, protocol) + bcolors.ENDC)
+                                                            print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service named {} using protocol {}'.format(name, protocol) + bcolors.ENDC)
                                                         else:
                                                             # We don't have a name for the service
                                                             print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service, using protocol {}'.format(protocol) + bcolors.ENDC)
@@ -210,7 +210,7 @@ def do(pkt):
                                                     name = rrname.split('.')[-5]
                                                     app_protocol = rrname.split('.')[-4]
                                                     protocol = rrname.split('.')[-3].split('_')[1]
-                                                    print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service called {}, using the application protocol {} and transport protocol {}'.format(name, app_protocol, protocol) + bcolors.ENDC)
+                                                    print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service named {}, using the application protocol {} and transport protocol {}'.format(name, app_protocol, protocol) + bcolors.ENDC)
                                             elif len(inner_data.split('.')) == 3:
                                                 # This means that we only have a name and then .local.
                                                 print(bcolors.IMPORTANT + '\t\tThe name of this device by PTR is {}'.format(inner_data.split('.')[0]) + bcolors.ENDC)
