@@ -21,6 +21,29 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    NORMAL = '\033[8m'
+
+# Store info about the clients
+clients = {}
+# The format of the clients is: {'MAC': 'name'}
+
+
+def add_client(shw, srcip, name='unknown'):
+    """ Add client to our list"""
+    try:
+        data = clients[shw]
+        if 'unknown' in data['name']:
+            data['name'] = name
+            clients[shw] = data
+    except KeyError:
+        data = {}
+        data['srcip'] = srcip
+        data['name'] = name
+        clients[shw] = data
+
+def get_client(shw):
+    """ Get the client """
+    return clients[shw]
 
 def do(pkt):
     """
@@ -31,6 +54,7 @@ def do(pkt):
             shw = pkt[Ether].src.upper()
             mac_vendor = macvendor.get_all(shw).manuf_long
             srcip = pkt[IP].src
+            add_client(shw, srcip)
             UDPlayer = pkt[UDP]
             #len = UDPlayer.len
             if DNS in UDPlayer:
@@ -42,7 +66,7 @@ def do(pkt):
                 amount_of_answers = DNSlayer.ancount
                 # TODO: Find the Authoritative Nameservers
 
-                print(bcolors.HEADER + 'SrcMAC: {} ({}), SrcIP: {}. #Questions: {}. #Additional Records {}. #Answers: {}'.format(shw, mac_vendor, srcip, amount_of_questions, amount_of_additional_records, amount_of_answers) + bcolors.ENDC)
+                print(bcolors.HEADER + 'SrcMAC: {} ({}), SrcIP: {}. Name: \033[36m{}\033[95m . #Questions: {}. #Additional Records {}. #Answers: {}'.format(shw, mac_vendor, srcip, get_client(shw)['name'], amount_of_questions, amount_of_additional_records, amount_of_answers) + bcolors.ENDC)
                 question_name = DNSlayer.fields['qd']
 
 
@@ -213,7 +237,9 @@ def do(pkt):
                                                     print(bcolors.WARNING + '\t\t\tThis host has a PTR record to an iTunes WiFi Sync service named {}, using the application protocol {} and transport protocol {}'.format(name, app_protocol, protocol) + bcolors.ENDC)
                                             elif len(inner_data.split('.')) == 3:
                                                 # This means that we only have a name and then .local.
-                                                print(bcolors.IMPORTANT + '\t\tThe name of this device by PTR is {}'.format(inner_data.split('.')[0]) + bcolors.ENDC)
+                                                name = inner_data.split('.')[0]
+                                                print(bcolors.IMPORTANT + '\t\tThe name of this device by PTR is {}'.format(name) + bcolors.ENDC)
+                                                add_client(shw, srcip, name)
                                             else:
                                                 print('\t\tAnswer Type: {}. Rdata to process: {}'.format(answers_name.name, inner_data))
                                 else:
