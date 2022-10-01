@@ -1,5 +1,8 @@
 # Sapito 
+[![Docker Image CI](https://github.com/eldraco/Sapito/actions/workflows/docker-image.yml/badge.svg)](https://github.com/eldraco/Sapito/actions/workflows/docker-image.yml)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/eldraco/Sapito/master)
+![Docker Pulls](https://img.shields.io/docker/pulls/stratosphereips/sapito?color=green)
+
 
 Sapito is a mDNS (multicast DNS) sniffer and interpreter
 
