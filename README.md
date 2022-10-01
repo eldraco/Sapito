@@ -62,7 +62,7 @@ docker run --rm --network host --name sapito -it stratosphereips/sapito:latest  
 
 ## Why some packets have a question and answers in the same packet?
 
-Because of Known-Answer suppression (https://tools.ietf.org/html/rfc6762#section-7.1)
+Because of Known-Answer suppression[^1]:
 
     Known-Answer Suppression
 
@@ -80,3 +80,5 @@ Because of Known-Answer suppression (https://tools.ietf.org/html/rfc6762#section
        receive further answers to this query, and it is in this case that it
        is beneficial to use the Known-Answer list to suppress repeated
        sending of redundant answers that the querier already knows.
+
+[^1]: ‘RFC 6762: Multicast DNS’. https://www.rfc-editor.org/rfc/rfc6762#section-7.1 (accessed Oct. 01, 2022).
