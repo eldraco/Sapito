@@ -3,26 +3,31 @@
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/eldraco/Sapito/master)
 ![Docker Pulls](https://img.shields.io/docker/pulls/stratosphereips/sapito?color=green)
 
+Authors: Sebastian Garcia (eldraco@gmail.com, @eldracote), Veronica Valeros (vero.valeros@gmail.com, @verovaleros)
 
-Sapito is a mDNS (multicast DNS) sniffer and interpreter
+## About Sapito
 
-The idea is to sniff packets from a pcap or interface and be able to interpret the findings, not only print them.
-
-Sapito is able to understand the questions and answers to make sense to the messages. 
-It can also understand some devices, like finding macos computers and several type of iPads.
-
-Sapito uses colors to show important information.
+Sapito is a multicast DNS (mDNS) sniffer and interpreter written in Python. Sapito sniffs packets from a pcap or interface and interprets the findings. This means that Sapito is able to understand the mDNS questions and answers, making sense of the messages. It can also identify certain devices, like finding MacOS computers and several type of iPads. The color-coded output helps to highlight important information.
 
 
-If you find a bug, please report it together with the output of the tool to eldraco@gmail.com. If you send a pcap with the 
-offending packets, better.
+
+If you find a bug, please report it along with the output of the tool to eldraco@gmail.com. If you have the pcap with the offending packets, it would be extremely useful if you send it along with the bug report. 
 
 ![Default Options](https://github.com/eldraco/Sapito/blob/master/media/sapito-gif.gif?raw=true)
 
-Sapito was made by Sebastian Garcia (eldraco@gmail.com, and @eldracote) and Veronica Valeros (vero.valeros@gmail.com, @verovaleros)
+## Docker Image
+
+Sapito has a public Docker image with the latest version on DockerHub, which runs well on Linux systems (MacOS not supported yet).
+
+To run Sapito:
+
+```bash
+docker run --rm --network host --name sapito -it stratosphereips/sapito:latest  python3 sapito.py -i <interface>
+```
 
 
 # Background about some services
+
 ## About Bonjour Services
 
     ._airplay._tcp.local
