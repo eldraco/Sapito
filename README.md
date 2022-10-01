@@ -1,4 +1,6 @@
 # Sapito 
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/eldraco/Sapito/master)
+
 Sapito is a mDNS (multicast DNS) sniffer and interpreter
 
 The idea is to sniff packets from a pcap or interface and be able to interpret the findings, not only print them.
