@@ -1,0 +1,6 @@
+videos/
+images/
+.git
+.gitignore
+.github
+__pycache__
