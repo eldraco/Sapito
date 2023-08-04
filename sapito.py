@@ -1,16 +1,18 @@
 #!/usr/bin/env python
-# Seba Garcia whatever
-# Vero Valeros is coauthor
+# Authors:
+# Sebastian Garcia, sebastian.garcia@agents.fel.cvut.cz, eldraco@gmail.com
+# Veronica Valeros, vero.valeros@gmail.com, valerver@fel.cvut.cz
+# Stratosphere Laboratory, Czech Technical University in Prague
 
-from os import listdir
-from os.path import isfile, join
+import re
+import sys
 import pickle
 import argparse
-import sys
-from datetime import datetime
-from scapy.all import *
-import re
 import macvendor
+from os import listdir
+from scapy.all import *
+from datetime import datetime
+from os.path import isfile, join
 
 class bcolors:
     HEADER = '\033[95m'
@@ -24,9 +26,8 @@ class bcolors:
     NORMAL = '\033[8m'
 
 # Store info about the clients
-clients = {}
 # The format of the clients is: {'MAC': 'name'}
-
+clients = {}
 
 def add_client(shw, srcip, name='unknown'):
     """ Add client to our list"""

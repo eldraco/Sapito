@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: >-
+  Sapito: a multicast DNS (mDNS) sniffer and interpreter.
+message: 'If you use this software, please cite it as below.'
+type: software
+authors:
+  - given-names: Sebastian
+    family-names: Garcia
+    email: sebastian.garcia@agents.fel.cvut.cz
+    affiliation: >-
+      Stratosphere Laboratory, AIC, FEL, Czech
+      Technical University in Prague
+    orcid: 'https://orcid.org/0000-0001-6238-9910'
+  - given-names: Veronica
+    family-names: Valeros
+    email: vero.valeros@gmail.com
+    affiliation: >-
+      Stratosphere Laboratory, AIC, FEL, Czech
+      Technical University in Prague
+    orcid: 'https://orcid.org/0000-0003-2554-3231'
