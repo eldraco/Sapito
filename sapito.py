@@ -77,12 +77,12 @@ def do(pkt):
                 print(bcolors.HEADER + f' > Questions: \033[36m{num_questions}\033[95m' + bcolors.ENDC)
                 for pos in range(0,num_questions):
                     if args.debug:
-                        print('\t\t[Debug] Question Type: {}. Payload: {}'.format(question_name.qname, question_name.payload))
+                        print(f"\t\t[Debug] Question Type: {question_name.qname}. Payload: {question_name.payload}")
                     try:
-                        print('\t\t{}'.format(question_name.qname.decode('utf-8')))
+                        print(f"\t\t{question_name.qname.decode('utf-8')}")
                     except AttributeError:
                         # Some versions of scapy do not give a Byte String
-                        print('\t\t{}'.format(question_name))
+                        print(f"\t\t{question_name}")
                     try:
                         question_name = question_name.payload
                     except AttributeError:
