@@ -134,6 +134,11 @@ def do(pkt):
                             except AttributeError:
                                 print(f"\t[Debug] Answer Type: {answers_name.name}")
 
+                        # We check for the following resource records:
+                        #  - DNSRR
+                        #  - DNSRRSRV
+                        #  - DNSRRTXT
+
                         # Process Generic DNSRR (Resource Records)
                         if type(answers_name) == DNSRR:
 
