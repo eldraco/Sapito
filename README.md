@@ -69,3 +69,10 @@ Because of Known-Answer suppression (https://tools.ietf.org/html/rfc6762#section
        receive further answers to this query, and it is in this case that it
        is beneficial to use the Known-Answer list to suppress repeated
        sending of redundant answers that the querier already knows.
+
+
+# TOFIX
+  File "./sapito.py", line 368, in do
+    print(bcolors.WARNING + '\t\t\tThis host named {} offers the service {} in the MAC {}, IP {}, protocol {}'.format(name, service, macaddr, ipaddr, protocol ) + bcolors.ENDC)
+UnboundLocalError: local variable 'macaddr' referenced before assignment
+
