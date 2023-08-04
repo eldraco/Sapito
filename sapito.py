@@ -130,9 +130,9 @@ def do(pkt):
 
                         if args.debug:
                             try:
-                                print('\t\t[Debug] Answer Type: {}. Rdata: {}'.format(answers_name.name, rdata))
+                                print(f"\t[Debug] Answer Type: {answers_name.name} | Rdata: {rdata}")
                             except AttributeError:
-                                print('\t\t[Debug] Answer Type: {}.'.format(answers_name.name))
+                                print(f"\t[Debug] Answer Type: {answers_name.name}")
 
                         # Process Generic DNSRR (Resource Records)
                         if type(answers_name) == DNSRR:
