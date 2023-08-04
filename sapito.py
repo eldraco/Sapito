@@ -4,15 +4,10 @@
 # Veronica Valeros, vero.valeros@gmail.com, valerver@fel.cvut.cz
 # Stratosphere Laboratory, Czech Technical University in Prague
 
-import re
-import sys
-import pickle
 import argparse
 import macvendor
-from os import listdir
 from scapy.all import *
 from datetime import datetime
-from os.path import isfile, join
 
 class bcolors:
     HEADER = '\033[95m'
