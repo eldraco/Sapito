@@ -58,8 +58,8 @@ def do(pkt):
                 # fields = DNSlayer.fields # length, id, qtype, name, qd, an, ar qr, opcode, aa,tc,rd,ra,z,ad,cd,rcode,qdcount,ancount,nscount,arcount
                 # Amount of Questions: DNSlayer.qdcount
                 amount_of_questions = DNSlayer.qdcount
-                amount_of_answers = DNSlayer.ancount
                 num_additional_records = DNSlayer.arcount
+                num_answers = DNSlayer.ancount
                 # TODO: Find the Authoritative Nameservers
 
                 print(bcolors.HEADER + 'SrcMAC: {} ({}), SrcIP: {}. Name: \033[36m{}\033[95m . #Questions: {}. #Additional Records {}. #Answers: {}'.format(shw, mac_vendor, srcip, get_client(shw)['name'], amount_of_questions, amount_of_additional_records, amount_of_answers) + bcolors.ENDC)
@@ -91,7 +91,7 @@ def do(pkt):
                 # Process the Answers
                 #
                 # We will try to parse these answers by type
-                if amount_of_answers:
+                if num_answers:
                     print('\tAnswers:')
                     try:
                         answers_name = DNSlayer.fields['an']
@@ -102,7 +102,7 @@ def do(pkt):
                     #  - Process each answer one after the other.
                     #  - They are nested, so we need to process them by changing
                     #    the value of answers_name on each loop
-                    for pos in range(0,amount_of_answers):
+                    for pos in range(0,num_answers):
                         rdata = False
                         rrname = False
 
