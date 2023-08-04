@@ -513,7 +513,7 @@ def do(pkt):
 
 # Main
 ####################
-if __name__ == '__main__':  
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', help='Amount of verbosity. This shows more info about the results.', action='store', required=False, type=int)
     parser.add_argument('-d', '--debug', help='Amount of debugging. This shows inner information about the flows.', action='store', required=False, type=int)
@@ -530,5 +530,3 @@ if __name__ == '__main__':
         sniff(iface=args.interface,prn=do,store=0, filter=args.filter)
     elif args.readfile:
         sniff(offline=args.readfile,prn=do,store=0, filter=args.filter)
-
-
