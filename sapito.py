@@ -73,8 +73,8 @@ def do(pkt):
 
                 #####################
                 # Process the questions
-                if num_questions:
-                    print('\tQuestions:')
+                #
+                print(bcolors.HEADER + f' > Questions: \033[36m{num_questions}\033[95m' + bcolors.ENDC)
                 for pos in range(0,num_questions):
                     if args.debug:
                         print('\t\t[Debug] Question Type: {}. Payload: {}'.format(question_name.qname, question_name.payload))
@@ -92,9 +92,9 @@ def do(pkt):
                 #####################
                 # Process the Answers
                 #
+                print(bcolors.HEADER + f' > Answers: \033[36m{num_answers}\033[95m' + bcolors.ENDC)
                 # We will try to parse these answers by type
                 if num_answers:
-                    print('\tAnswers:')
                     try:
                         answers_name = DNSlayer.fields['an']
                     except KeyError:
@@ -438,9 +438,10 @@ def do(pkt):
 
                 #####################
                 # Process the Additional records
+                # 
+                print(bcolors.HEADER + f' > Additional Records: \033[36m{num_additional_records}\033[95m' + bcolors.ENDC)
                 # Amount of additional records
                 if num_additional_records:
-                    print('\tAdditional Records:')
                     additional_name = DNSlayer.fields['ar']
 
                     # Some rdata comes as a list and some as a string. Lets convert the string into a list
