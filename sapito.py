@@ -57,7 +57,7 @@ def do(pkt):
                 DNSlayer = pkt[UDP][DNS]
                 # fields = DNSlayer.fields # length, id, qtype, name, qd, an, ar qr, opcode, aa,tc,rd,ra,z,ad,cd,rcode,qdcount,ancount,nscount,arcount
                 # Amount of Questions: DNSlayer.qdcount
-                amount_of_questions = DNSlayer.qdcount
+                num_questions = DNSlayer.qdcount
                 num_additional_records = DNSlayer.arcount
                 num_answers = DNSlayer.ancount
                 # TODO: Find the Authoritative Nameservers
@@ -71,9 +71,9 @@ def do(pkt):
 
                 #####################
                 # Process the questions
-                if amount_of_questions:
+                if num_questions:
                     print('\tQuestions:')
-                for pos in range(0,amount_of_questions):
+                for pos in range(0,num_questions):
                     if args.debug:
                         print('\t\t[Debug] Question Type: {}. Payload: {}'.format(question_name.qname, question_name.payload))
                     try:
