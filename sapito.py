@@ -55,8 +55,10 @@ def do(pkt):
             #len = UDPlayer.len
             if DNS in UDPlayer:
                 DNSlayer = pkt[UDP][DNS]
-                # fields = DNSlayer.fields # length, id, qtype, name, qd, an, ar qr, opcode, aa,tc,rd,ra,z,ad,cd,rcode,qdcount,ancount,nscount,arcount
-                # Amount of Questions: DNSlayer.qdcount
+                # The DNSlayer.fields are:
+                #  - length,id,qtype,name,qd,an,ar qr,opcode,
+                #    aa,tc,rd,ra,z,ad,cd,rcode,qdcount,ancount,
+                #    nscount,arcount
                 num_questions = DNSlayer.qdcount
                 num_additional_records = DNSlayer.arcount
                 num_answers = DNSlayer.ancount
