@@ -58,8 +58,8 @@ def do(pkt):
                 # fields = DNSlayer.fields # length, id, qtype, name, qd, an, ar qr, opcode, aa,tc,rd,ra,z,ad,cd,rcode,qdcount,ancount,nscount,arcount
                 # Amount of Questions: DNSlayer.qdcount
                 amount_of_questions = DNSlayer.qdcount
-                amount_of_additional_records = DNSlayer.arcount
                 amount_of_answers = DNSlayer.ancount
+                num_additional_records = DNSlayer.arcount
                 # TODO: Find the Authoritative Nameservers
 
                 print(bcolors.HEADER + 'SrcMAC: {} ({}), SrcIP: {}. Name: \033[36m{}\033[95m . #Questions: {}. #Additional Records {}. #Answers: {}'.format(shw, mac_vendor, srcip, get_client(shw)['name'], amount_of_questions, amount_of_additional_records, amount_of_answers) + bcolors.ENDC)
@@ -437,7 +437,7 @@ def do(pkt):
                 #####################
                 # Process the Additional records
                 # Amount of additional records
-                if amount_of_additional_records:
+                if num_additional_records:
                     print('\tAdditional Records:')
                     additional_name = DNSlayer.fields['ar']
 
@@ -467,7 +467,7 @@ def do(pkt):
 
 
 
-                    for pos in range(0,amount_of_additional_records):
+                    for pos in range(0,num_additional_records):
                         if args.debug:
                             print('\t\t[Debug] Additional Record. Type: {}. Rdata: {}. RRname: {}'.format(additional_name.name, rdata, rrname))
 
