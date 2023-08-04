@@ -67,7 +67,10 @@ def do(pkt):
                 # TODO: Find the Authoritative Nameservers
 
                 print(bcolors.HEADER + 'SrcMAC: {} ({}), SrcIP: {}. Name: \033[36m{}\033[95m . #Questions: {}. #Additional Records {}. #Answers: {}'.format(shw, mac_vendor, srcip, get_client(shw)['name'], amount_of_questions, amount_of_additional_records, amount_of_answers) + bcolors.ENDC)
-                question_name = DNSlayer.fields['qd']
+                try:
+                    question_name = DNSlayer.fields['qd']
+                except KeyError:
+                    return True
 
 
                 #####################
@@ -81,8 +84,11 @@ def do(pkt):
                         print('\t\t{}'.format(question_name.qname.decode('utf-8')))
                     except AttributeError:
                         # Some versions of scapy do not give a Byte String
-                        print('\t\t{}'.format(question_name.qname))
-                    question_name = question_name.payload
+                        print('\t\t{}'.format(question_name))
+                    try:
+                        question_name = question_name.payload
+                    except AttributeError:
+                        question_name = ""
 
 
                 #####################
@@ -91,7 +97,10 @@ def do(pkt):
                 # We will try to parse these answers by type
                 if amount_of_answers:
                     print('\tAnswers:')
-                    answers_name = DNSlayer.fields['an']
+                    try:
+                        answers_name = DNSlayer.fields['an']
+                    except KeyError:
+                        return True
 
                     # To process the answers we need to iterate over all of them
                     # Process each answer one after the other. They are nested, so we need to process them by changing the value of answers_name on each loop
@@ -398,6 +407,12 @@ def do(pkt):
                                     name = rdata
                                     if len(location.split('@')) < 2:
                                         # Some devices do not send a mac at all nor ip, only a name
+                                        # Bug to solve:
+                                        # In home1.pcap
+                                        # SrcMAC: B8:27:EB:ED:0C:2F (Raspberry Pi Foundation), SrcIP: 10.0.0.43. Name: Pi . #Questions: 0. #Additional Records 0. #Answers: 28
+                                        # This host named ['Pi._sftp-ssh._tcp.local.'] offers the service of Remote Audio Output Protocol on the MAC address B827EBED0C2F and device with name Pi
+
+
                                         print(bcolors.WARNING + '\t\t\tThis host named {} offers the service of Remote Audio Output Protocol on the device named {}'.format(name, macaddr, location) + bcolors.ENDC)
 
                                     else:
