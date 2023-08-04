@@ -104,7 +104,9 @@ def do(pkt):
                         return True
 
                     # To process the answers we need to iterate over all of them
-                    # Process each answer one after the other. They are nested, so we need to process them by changing the value of answers_name on each loop
+                    #  - Process each answer one after the other.
+                    #  - They are nested, so we need to process them by changing
+                    #    the value of answers_name on each loop
                     for pos in range(0,amount_of_answers):
                         rdata = False
                         rrname = False
