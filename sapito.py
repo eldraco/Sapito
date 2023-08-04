@@ -64,9 +64,7 @@ def do(pkt):
                 num_answers = DNSlayer.ancount
                 # TODO: Find the Authoritative Nameservers
 
-                print(bcolors.HEADER)
-                print(f"\033[36m{datetime.now()}\033[95m | SrcMAC: \033[36m{shw}\033[95m | Vendor: \033[36m{mac_vendor}\033[95m | SrcIP: \033[36m{srcip}\033[95m | Name: \033[36m{get_client(shw)['name']}\033[95m | Questions: \033[36m{num_questions}\033[95m | Additional Records: \033[36m{num_additional_records}\033[95m | Answers: \033[36m{num_answers}\033[95m")
-                print(bcolors.ENDC)
+                print(bcolors.HEADER + f"\033[36m{datetime.now()}\033[95m | SrcMAC: \033[36m{shw}\033[95m | Vendor: \033[36m{mac_vendor}\033[95m | SrcIP: \033[36m{srcip}\033[95m | Name: \033[36m{get_client(shw)['name']}\033[95m | Questions: \033[36m{num_questions}\033[95m | Additional Records: \033[36m{num_additional_records}\033[95m | Answers: \033[36m{num_answers}\033[95m" + bcolors.ENDC)
                 try:
                     question_name = DNSlayer.fields['qd']
                 except KeyError:
