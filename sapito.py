@@ -515,11 +515,36 @@ def do(pkt):
 ####################
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', help='Amount of verbosity. This shows more info about the results.', action='store', required=False, type=int)
-    parser.add_argument('-d', '--debug', help='Amount of debugging. This shows inner information about the flows.', action='store', required=False, type=int)
-    parser.add_argument('-r', '--readfile', help='Name of the pcap file to read.', action='store', required=False, type=str)
-    parser.add_argument('-i', '--interface', help='Name of the interface to use.', action='store', required=False, type=str)
-    parser.add_argument('-f', '--filter', help='Tcpdump style filter to use.', action='store', required=False, type=str)
+    parser.add_argument('-v',
+                        '--verbose',
+                        help='Verbosity level. This shows more info about the results.',
+                        action='store',
+                        required=False,
+                        type=int)
+    parser.add_argument('-d',
+                        '--debug',
+                        help='Debugging level. This shows inner information about the flows.',
+                        action='store',
+                        required=False,
+                        type=int)
+    parser.add_argument('-r',
+                        '--readfile',
+                        help='Name of the pcap file to read.',
+                        action='store',
+                        required=False,
+                        type=str)
+    parser.add_argument('-i',
+                        '--interface',
+                        help='Name of the interface to use.',
+                        action='store',
+                        required=False,
+                        type=str)
+    parser.add_argument('-f',
+                        '--filter',
+                        help='Tcpdump style filter to use.',
+                        action='store',
+                        required=False,
+                        type=str)
 
     args = parser.parse_args()
 
