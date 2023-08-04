@@ -434,7 +434,7 @@ def do(pkt):
 
                         # In the answer section, TXT records give additional info about a resource reoord
                         elif type(answers_name) == DNSRRTXT:
-                            print('\t\t\tType {}. '.format(answers.name))
+                            print(f'Type: \033[36m{answers.name}\033[95m')
 
                         # Loop
                         answers_name = answers_name.payload
