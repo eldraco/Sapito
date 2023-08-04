@@ -552,6 +552,6 @@ if __name__ == '__main__':
     macvendor.refresh()
 
     if args.interface:
-        sniff(iface=args.interface,prn=do,store=0, filter=args.filter)
+        sniff(iface=args.interface, prn=do, store=0, filter=args.filter)
     elif args.readfile:
         sniff(offline=args.readfile,prn=do,store=0, filter=args.filter)
