@@ -1,4 +1,5 @@
 # Sapito 
+[![Auto Tag](https://github.com/stratosphereips/Sapito/actions/workflows/autotag.yml/badge.svg)](https://github.com/stratosphereips/Sapito/actions/workflows/autotag.yml)
 [![Docker Image CI](https://github.com/eldraco/Sapito/actions/workflows/docker-image.yml/badge.svg)](https://github.com/eldraco/Sapito/actions/workflows/docker-image.yml)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/eldraco/Sapito/master)
 ![Docker Pulls](https://img.shields.io/docker/pulls/stratosphereips/sapito?color=green)
@@ -7,11 +8,11 @@ Authors: Sebastian Garcia (eldraco@gmail.com, @eldracote), Veronica Valeros (ver
 
 ## About Sapito
 
-Sapito is a multicast DNS (mDNS) sniffer and interpreter written in Python. Sapito sniffs packets from a pcap or interface and interprets the findings. This means that Sapito is able to understand the mDNS questions and answers, making sense of the messages. It can also identify certain devices, like finding MacOS computers and several type of iPads. The color-coded output helps to highlight important information.
+Sapito is a multicast DNS (mDNS) sniffer and interpreter written in Python. Sapito sniffs packets from a pcap or interface and interprets the findings. This means that Sapito can understand the mDNS questions and answers, making sense of the messages. It can also identify certain devices, like finding MacOS computers and several types of iPads. The color-coded output helps to highlight important information.
 
 
 
-If you find a bug, please report it along with the output of the tool to eldraco@gmail.com. If you have the pcap with the offending packets, it would be extremely useful if you send it along with the bug report. 
+Please read the [SECURITY](SECURITY.md) guide on reporting a bug. If you have the pcap with the offending packets, it would be extremely useful if you send it along with the bug report. 
 
 ![Default Options](https://github.com/eldraco/Sapito/blob/master/media/sapito-gif.gif?raw=true)
 
@@ -33,15 +34,15 @@ docker run --rm --network host --name sapito -it stratosphereips/sapito:latest  
 
 ### ._airplay._tcp.local
 
-> This is a Bonjour advertisement for the network service that enables AirPlay of video content. I.e. this allows iOS devices to discover the Apple TV as a "remote display" that it can display video on.
+> This is a Bonjour advertisement for the network service that enables AirPlay of video content. I.e., this allows iOS devices to discover the Apple TV as a "remote display" that it can display video on.
 
 ### ._mediaremotetv._tcp.local
 
-> This is one of the network services that makes the Apple TV Remote work - i.e. the app or Control Center built-in feature for remote controlling Apple TV devices from iPhones and iPads. This service is advertised on the network via Bonjour to ensure that iOS devices can discover the AppleTV.
+> This is one of the network services that makes the Apple TV Remote work - i.e., the app or Control Center built-in feature for remote controlling Apple TV devices from iPhones and iPads. This service is advertised on the network via Bonjour to ensure that iOS devices can discover AppleTV.
 
 ### ._companion-link._tcp.local
 
-> This service is seemingly not documented by Apple, but seems involved in making the AirPlay 2 system work.
+> This service is seemingly not documented by Apple but seems involved in making the AirPlay 2 system work.
 
 ### ._raop._tcp.local
 
@@ -49,18 +50,18 @@ docker run --rm --network host --name sapito -it stratosphereips/sapito:latest  
 
 ### ._sleep-proxy._udp.local
 
-> This is a Bonjour Sleep Proxy. The idea is that the AppleTV can respond to various network queries for other devices that are currently in low-power mode to lower energy usage. For example it could be a Mac offering a shared iTunes library or a shared printer. The AppleTV can then answer network requests for these servers while the Mac is in sleep mode - for example allowing the user to list the shared printers available on the network. However, when the user chooses to print something, the AppleTV will wake up the Mac and transfer the request to it.
+> This is a Bonjour Sleep Proxy. The idea is that AppleTV can respond to various network queries for other devices that are currently in low-power mode to lower energy usage. For example, it could be a Mac offering a shared iTunes library or a shared printer. The AppleTV can then answer network requests for these servers while the Mac is in sleep mode - for example, allowing the user to list the shared printers available on the network. However, when the user chooses to print something, the AppleTV will wake up the Mac and transfer the request to it.
 
 ### _homekit._tcp.local
 
-> This is a network service regarding HomeKit, Apple's system for communicating with and controlling devices in the home. Think controllable light bulbs, shades, door bells, whatever. The AppleTV works as a proxy in such a setting such that the user can control devices remotely (i.e. while not at home) even though the devices might be Bluetooth only and out of range. Note that ordinary HomeKit devices on the network advertise as _hap._tcp instead.
+> This is a network service regarding HomeKit, Apple's system for communicating with and controlling devices in the home. Think controllable light bulbs, shades, doorbells, whatever. The AppleTV works as a proxy in such a setting that the user can control devices remotely (i.e., while not at home) even though the devices might be Bluetooth only and out of range. Note that ordinary HomeKit devices on the network advertise as _hap._tcp instead.
 
 ### ._touch-able._tcp.local
 
-> This is another of the network services that makes the Apple TV Remote work. This service concerns device authentication. I.e. if you want to for example play a Youtube video on the Apple TV, the Apple TV can require that the device is authenticated before being allowed to do so. In practice authentications work by the Apple TV displaying a PIN-code on the TV that the user enters on the iOS device. This PIN-code is transferred using the service advertised as "touch-able" to authenticate the device.
+> This is another of the network services that makes the Apple TV Remote work. This service concerns device authentication. I.e., if you want to play a Youtube video on the Apple TV, the Apple TV can require that the device is authenticated before being allowed to do so. In practice, authentications work by the Apple TV displaying a PIN code on the TV that the user enters on the iOS device. This PIN code is transferred using the service advertised as "touch-able" to authenticate the device.
 
 
-## Why some packets have a question and answers in the same packet?
+## Why do some packets have a question and answers in the same packet?
 
 Because of Known-Answer suppression[^1]:
 
